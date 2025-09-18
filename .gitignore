@@ -14,3 +14,8 @@ out/
 .classpath
 .attach*
 src/test/resources/application-test.yml
+
+# Test files with credentials (DO NOT COMMIT)
+test-with-credentials.yml
+*-credentials.yml
+*-with-credentials.*
