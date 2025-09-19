@@ -1,13 +1,56 @@
-id: example
-namespace: io.kestra.templates
+id: airtable_example
+namespace: company.airtable
 
 tasks:
-- id: date
-  type: io.kestra.plugin.templates.Example
-  format: "{{taskrun.startDate}}"
-- id: task-id
-  type: io.kestra.plugin.templates.Example
-  format: "{{task.id}}"
-- id: flow-id
-  type: io.kestra.plugin.templates.Example
-  format: "{{outputs['task-id'].child.value}}"
+  # List records with filtering
+  - id: list_tasks
+    type: io.kestra.plugin.airtable.records.List
+    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    tableId: "Tasks"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    filterByFormula: "AND({Status} != 'Done', {Priority} = 'High')"
+    fields: ["Task Name", "Status", "Priority", "Due Date"]
+    maxRecords: 10
+    fetchType: FETCH
+
+  # Create a new task
+  - id: create_task
+    type: io.kestra.plugin.airtable.records.Create
+    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    tableId: "Tasks"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    fields:
+      "Task Name": "Example Task from Kestra"
+      "Status": "Todo"
+      "Priority": "Medium"
+      "Due Date": "{{ now() | dateAdd(7, 'DAYS') | date('yyyy-MM-dd') }}"
+    typecast: true
+
+  # Get the created task
+  - id: get_created_task
+    type: io.kestra.plugin.airtable.records.Get
+    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    tableId: "Tasks"
+    recordId: "{{ outputs.create_task.recordIds[0] }}"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    fields: ["Task Name", "Status", "Priority", "Due Date"]
+
+  # Update the task status
+  - id: update_task_status
+    type: io.kestra.plugin.airtable.records.Update
+    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    tableId: "Tasks"
+    recordId: "{{ outputs.create_task.recordIds[0] }}"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    fields:
+      "Status": "In Progress"
+      "Progress": 25
+
+  # Clean up - delete the example task
+  - id: cleanup_task
+    type: io.kestra.plugin.airtable.records.Delete
+    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    tableId: "Tasks"
+    recordId: "{{ outputs.create_task.recordIds[0] }}"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    runIf: "{{ inputs.cleanup | default(true) }}"
