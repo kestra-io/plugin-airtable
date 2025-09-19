@@ -85,6 +85,17 @@ import java.util.Map;
                 id: create_from_input
                 namespace: company.airtable
 
+                inputs:
+                  - id: customer_name
+                    type: STRING
+                    required: true
+                  - id: product
+                    type: STRING
+                    required: true
+                  - id: amount
+                    type: FLOAT
+                    required: true
+
                 tasks:
                   - id: create_dynamic_record
                     type: io.kestra.plugin.airtable.records.Create
