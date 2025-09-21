@@ -32,7 +32,7 @@ class ListTest {
             // Missing apiKey
             .build();
 
-        RunContext runContext = TestsUtils.mockRunContext(runContextFactory, task, Map.of());
+        RunContext runContext = runContextFactory.of();
 
         assertThrows(Exception.class, () -> task.run(runContext));
     }
@@ -65,6 +65,7 @@ class ListTest {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
     void shouldExecuteRealAirtableRequest() throws Exception {
@@ -84,10 +85,23 @@ class ListTest {
             .fetchType(Property.ofValue(FetchType.FETCH))
             .build();
 
-        RunContext runContext = TestsUtils.mockRunContext(runContextFactory, task, Map.of());
+        RunContext runContext = runContextFactory.of();
         List.Output output = task.run(runContext);
 
+        // Verify actual API execution results
         assertThat(output, is(notNullValue()));
         assertThat(output.getSize(), is(notNullValue()));
+        assertThat(output.getSize(), is(greaterThanOrEqualTo(0L)));
+        assertThat(output.getRows(), is(notNullValue()));
+
+        // Verify response structure
+        if (output.getSize() > 0) {
+            java.util.List<Map<String, Object>> rows = output.getRows();
+            assertThat(rows.size(), is(lessThanOrEqualTo(5))); // Respects maxRecords
+
+            Map<String, Object> firstRecord = rows.get(0);
+            assertThat(firstRecord, hasKey("id"));
+            assertThat(firstRecord, hasKey("fields"));
+        }
     }
 }

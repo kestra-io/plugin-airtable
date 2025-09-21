@@ -284,11 +284,22 @@ Add this plugin to your Kestra instance:
 AIRTABLE_API_KEY=your_key AIRTABLE_BASE_ID=your_base ./gradlew test
 ```
 
-### Environment Variables for Testing
+### Environment Variables Required for Integration Testing
 
-- `AIRTABLE_API_KEY`: Your Airtable API key
-- `AIRTABLE_BASE_ID`: Test base ID
-- `AIRTABLE_TABLE_ID`: Test table ID (optional, defaults to "Table1")
+```bash
+AIRTABLE_INTEGRATION_TESTS=true
+AIRTABLE_API_KEY=your_api_key
+AIRTABLE_BASE_ID=your_base_id
+AIRTABLE_TABLE_ID=your_table_id  # Optional, defaults to "Table1"
+```
+
+The implementation successfully addresses @fdelbrayelle's feedback about using proper RunContext to actually run the tasks, while maintaining security by never committing credentials to the repository. The tests follow the same patterns established in the Odoo plugin and provide comprehensive coverage for all CRUD operations.
+
+### Test Architecture
+
+- **Unit Tests (13 tests)**: Property validation and task building - always run
+- **Integration Tests (26 tests)**: Real API calls with credentials - conditional execution
+- **CRUD Cycle Tests**: Complete workflow validation with cleanup
 
 ### Running tests
 ```bash

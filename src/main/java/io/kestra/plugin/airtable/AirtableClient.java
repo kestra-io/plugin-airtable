@@ -46,7 +46,7 @@ public class AirtableClient {
     public AirtableListResponse listRecords(String baseId, String tableId, String filterByFormula,
                                           List<String> fields, Integer maxRecords, String view,
                                           String offset) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + tableId);
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8));
         boolean hasParams = false;
 
         if (filterByFormula != null && !filterByFormula.trim().isEmpty()) {
@@ -98,7 +98,7 @@ public class AirtableClient {
      */
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
             throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId);
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId);
         boolean hasParams = false;
 
         if (fields != null && !fields.isEmpty()) {
@@ -132,7 +132,7 @@ public class AirtableClient {
      */
     public AirtableRecord createRecord(String baseId, String tableId, Map<String, Object> fields, Boolean typecast)
             throws Exception {
-        String url = BASE_URL + "/" + baseId + "/" + tableId;
+        String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8);
 
         Map<String, Object> requestBody = Map.of("fields", fields);
         if (typecast != null && typecast) {
@@ -169,7 +169,7 @@ public class AirtableClient {
             throw new IllegalArgumentException("Cannot create more than 10 records at once");
         }
 
-        String url = BASE_URL + "/" + baseId + "/" + tableId;
+        String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8);
 
         List<Map<String, Object>> records = new ArrayList<>();
         for (Map<String, Object> fields : recordsFields) {
@@ -208,7 +208,7 @@ public class AirtableClient {
     public AirtableRecord updateRecord(String baseId, String tableId, String recordId,
                                      Map<String, Object> fields, Boolean typecast)
             throws Exception {
-        String url = BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId;
+        String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId;
 
         Map<String, Object> requestBody = Map.of("fields", fields);
         if (typecast != null && typecast) {
@@ -241,7 +241,7 @@ public class AirtableClient {
      */
     public AirtableRecord deleteRecord(String baseId, String tableId, String recordId)
             throws Exception {
-        String url = BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId;
+        String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId;
 
         HttpRequest request = HttpRequest.builder()
             .method("DELETE")
