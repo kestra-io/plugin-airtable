@@ -3,15 +3,21 @@ package io.kestra.plugin.airtable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.*;
+import io.kestra.core.http.HttpRequest;
+import io.kestra.core.http.HttpResponse;
+import io.kestra.core.http.client.HttpClient;
+import io.kestra.core.http.client.HttpClientResponseException;
+import io.kestra.core.runners.RunContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * HTTP client for interacting with Airtable REST API.
@@ -21,19 +27,16 @@ public class AirtableClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AirtableClient.class);
     private static final String BASE_URL = "https://api.airtable.com/v0";
-    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    private final OkHttpClient httpClient;
+    private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String apiKey;
 
-    public AirtableClient(String apiKey) {
+    public AirtableClient(String apiKey, RunContext runContext) throws Exception {
         this.apiKey = apiKey;
         this.objectMapper = new ObjectMapper();
-        this.httpClient = new OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
+        this.httpClient = HttpClient.builder()
+            .runContext(runContext)
             .build();
     }
 
@@ -42,43 +45,51 @@ public class AirtableClient {
      */
     public AirtableListResponse listRecords(String baseId, String tableId, String filterByFormula,
                                           List<String> fields, Integer maxRecords, String view,
-                                          String offset) throws IOException, AirtableException {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/" + baseId + "/" + tableId).newBuilder();
+                                          String offset) throws Exception {
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + tableId);
+        boolean hasParams = false;
 
         if (filterByFormula != null && !filterByFormula.trim().isEmpty()) {
-            urlBuilder.addQueryParameter("filterByFormula", filterByFormula);
+            urlBuilder.append(hasParams ? "&" : "?").append("filterByFormula=")
+                .append(URLEncoder.encode(filterByFormula, StandardCharsets.UTF_8));
+            hasParams = true;
         }
         if (fields != null && !fields.isEmpty()) {
             for (String field : fields) {
-                urlBuilder.addQueryParameter("fields[]", field);
+                urlBuilder.append(hasParams ? "&" : "?").append("fields[]=")
+                    .append(URLEncoder.encode(field, StandardCharsets.UTF_8));
+                hasParams = true;
             }
         }
         if (maxRecords != null) {
-            urlBuilder.addQueryParameter("maxRecords", String.valueOf(maxRecords));
+            urlBuilder.append(hasParams ? "&" : "?").append("maxRecords=").append(maxRecords);
+            hasParams = true;
         }
         if (view != null && !view.trim().isEmpty()) {
-            urlBuilder.addQueryParameter("view", view);
+            urlBuilder.append(hasParams ? "&" : "?").append("view=")
+                .append(URLEncoder.encode(view, StandardCharsets.UTF_8));
+            hasParams = true;
         }
         if (offset != null && !offset.trim().isEmpty()) {
-            urlBuilder.addQueryParameter("offset", offset);
+            urlBuilder.append(hasParams ? "&" : "?").append("offset=")
+                .append(URLEncoder.encode(offset, StandardCharsets.UTF_8));
         }
 
-        Request request = new Request.Builder()
-            .url(urlBuilder.build())
-            .header("Authorization", "Bearer " + apiKey)
-            .get()
+        HttpRequest request = HttpRequest.builder()
+            .method("GET")
+            .uri(URI.create(urlBuilder.toString()))
+            .addHeader("Authorization", "Bearer " + apiKey)
             .build();
 
-        logger.debug("Making GET request to: {}", request.url());
+        logger.debug("Making GET request to: {}", urlBuilder.toString());
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to list records: " + response.code() + " - " + responseBody);
-            }
-
-            return parseListResponse(responseBody);
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseListResponse(response.getBody());
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to list records: " + statusCode + " - " + responseBody);
         }
     }
 
@@ -86,31 +97,33 @@ public class AirtableClient {
      * Get a single record by ID.
      */
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
-            throws IOException, AirtableException {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId).newBuilder();
+            throws Exception {
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId);
+        boolean hasParams = false;
 
         if (fields != null && !fields.isEmpty()) {
             for (String field : fields) {
-                urlBuilder.addQueryParameter("fields[]", field);
+                urlBuilder.append(hasParams ? "&" : "?").append("fields[]=")
+                    .append(URLEncoder.encode(field, StandardCharsets.UTF_8));
+                hasParams = true;
             }
         }
 
-        Request request = new Request.Builder()
-            .url(urlBuilder.build())
-            .header("Authorization", "Bearer " + apiKey)
-            .get()
+        HttpRequest request = HttpRequest.builder()
+            .method("GET")
+            .uri(URI.create(urlBuilder.toString()))
+            .addHeader("Authorization", "Bearer " + apiKey)
             .build();
 
-        logger.debug("Making GET request to: {}", request.url());
+        logger.debug("Making GET request to: {}", urlBuilder.toString());
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to get record: " + response.code() + " - " + responseBody);
-            }
-
-            return parseRecordResponse(responseBody);
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseRecordResponse(response.getBody());
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to get record: " + statusCode + " - " + responseBody);
         }
     }
 
@@ -118,7 +131,7 @@ public class AirtableClient {
      * Create a new record.
      */
     public AirtableRecord createRecord(String baseId, String tableId, Map<String, Object> fields, Boolean typecast)
-            throws IOException, AirtableException {
+            throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + tableId;
 
         Map<String, Object> requestBody = Map.of("fields", fields);
@@ -126,25 +139,24 @@ public class AirtableClient {
             requestBody = Map.of("fields", fields, "typecast", true);
         }
 
-        String jsonBody = objectMapper.writeValueAsString(requestBody);
-        RequestBody body = RequestBody.create(jsonBody, JSON);
-
-        Request request = new Request.Builder()
-            .url(url)
-            .header("Authorization", "Bearer " + apiKey)
-            .post(body)
+        HttpRequest request = HttpRequest.builder()
+            .method("POST")
+            .uri(URI.create(url))
+            .addHeader("Authorization", "Bearer " + apiKey)
+            .body(HttpRequest.JsonRequestBody.builder()
+                .content(requestBody)
+                .build())
             .build();
 
-        logger.debug("Making POST request to: {} with body: {}", url, jsonBody);
+        logger.debug("Making POST request to: {}", url);
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to create record: " + response.code() + " - " + responseBody);
-            }
-
-            return parseRecordResponse(responseBody);
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseRecordResponse(response.getBody());
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to create record: " + statusCode + " - " + responseBody);
         }
     }
 
@@ -152,7 +164,7 @@ public class AirtableClient {
      * Create multiple records at once (max 10).
      */
     public List<AirtableRecord> createRecords(String baseId, String tableId, List<Map<String, Object>> recordsFields,
-                                            Boolean typecast) throws IOException, AirtableException {
+                                            Boolean typecast) throws Exception {
         if (recordsFields.size() > 10) {
             throw new IllegalArgumentException("Cannot create more than 10 records at once");
         }
@@ -169,25 +181,24 @@ public class AirtableClient {
             requestBody = Map.of("records", records, "typecast", true);
         }
 
-        String jsonBody = objectMapper.writeValueAsString(requestBody);
-        RequestBody body = RequestBody.create(jsonBody, JSON);
-
-        Request request = new Request.Builder()
-            .url(url)
-            .header("Authorization", "Bearer " + apiKey)
-            .post(body)
+        HttpRequest request = HttpRequest.builder()
+            .method("POST")
+            .uri(URI.create(url))
+            .addHeader("Authorization", "Bearer " + apiKey)
+            .body(HttpRequest.JsonRequestBody.builder()
+                .content(requestBody)
+                .build())
             .build();
 
-        logger.debug("Making POST request to: {} with body: {}", url, jsonBody);
+        logger.debug("Making POST request to: {}", url);
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to create records: " + response.code() + " - " + responseBody);
-            }
-
-            return parseListResponse(responseBody).getRecords();
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseListResponse(response.getBody()).getRecords();
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to create records: " + statusCode + " - " + responseBody);
         }
     }
 
@@ -196,7 +207,7 @@ public class AirtableClient {
      */
     public AirtableRecord updateRecord(String baseId, String tableId, String recordId,
                                      Map<String, Object> fields, Boolean typecast)
-            throws IOException, AirtableException {
+            throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId;
 
         Map<String, Object> requestBody = Map.of("fields", fields);
@@ -204,25 +215,24 @@ public class AirtableClient {
             requestBody = Map.of("fields", fields, "typecast", true);
         }
 
-        String jsonBody = objectMapper.writeValueAsString(requestBody);
-        RequestBody body = RequestBody.create(jsonBody, JSON);
-
-        Request request = new Request.Builder()
-            .url(url)
-            .header("Authorization", "Bearer " + apiKey)
-            .patch(body)
+        HttpRequest request = HttpRequest.builder()
+            .method("PATCH")
+            .uri(URI.create(url))
+            .addHeader("Authorization", "Bearer " + apiKey)
+            .body(HttpRequest.JsonRequestBody.builder()
+                .content(requestBody)
+                .build())
             .build();
 
-        logger.debug("Making PATCH request to: {} with body: {}", url, jsonBody);
+        logger.debug("Making PATCH request to: {}", url);
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to update record: " + response.code() + " - " + responseBody);
-            }
-
-            return parseRecordResponse(responseBody);
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseRecordResponse(response.getBody());
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to update record: " + statusCode + " - " + responseBody);
         }
     }
 
@@ -230,25 +240,24 @@ public class AirtableClient {
      * Delete a record.
      */
     public AirtableRecord deleteRecord(String baseId, String tableId, String recordId)
-            throws IOException, AirtableException {
+            throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + tableId + "/" + recordId;
 
-        Request request = new Request.Builder()
-            .url(url)
-            .header("Authorization", "Bearer " + apiKey)
-            .delete()
+        HttpRequest request = HttpRequest.builder()
+            .method("DELETE")
+            .uri(URI.create(url))
+            .addHeader("Authorization", "Bearer " + apiKey)
             .build();
 
         logger.debug("Making DELETE request to: {}", url);
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            String responseBody = response.body().string();
-
-            if (!response.isSuccessful()) {
-                throw new AirtableException("Failed to delete record: " + response.code() + " - " + responseBody);
-            }
-
-            return parseRecordResponse(responseBody);
+        try {
+            HttpResponse<String> response = httpClient.request(request, String.class);
+            return parseRecordResponse(response.getBody());
+        } catch (HttpClientResponseException e) {
+            String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
+            String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
+            throw new AirtableException("Failed to delete record: " + statusCode + " - " + responseBody);
         }
     }
 

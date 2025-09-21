@@ -1,5 +1,10 @@
 package io.kestra.plugin.airtable;
 
+import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
+import io.kestra.core.utils.TestsUtils;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,18 +14,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@KestraTest
 class AirtableClientTest {
 
+    @Inject
+    private RunContextFactory runContextFactory;
+
     @Test
-    void shouldCreateClientWithApiKey() {
-        AirtableClient client = new AirtableClient("fake-api-key");
+    void shouldCreateClientWithApiKey() throws Exception {
+        RunContext runContext = runContextFactory.of();
+        AirtableClient client = new AirtableClient("fake-api-key", runContext);
         assertThat(client, is(notNullValue()));
     }
 
     @Test
-    void shouldThrowExceptionForInvalidCredentials() {
+    void shouldThrowExceptionForInvalidCredentials() throws Exception {
         // This would test with a mock HTTP client in a real test scenario
-        AirtableClient client = new AirtableClient("invalid-key");
+        RunContext runContext = runContextFactory.of();
+        AirtableClient client = new AirtableClient("invalid-key", runContext);
 
         assertThrows(Exception.class, () -> {
             client.listRecords("invalid-base", "invalid-table", null, null, null, null, null);
@@ -28,8 +39,9 @@ class AirtableClientTest {
     }
 
     @Test
-    void shouldValidateRecordCreationLimit() {
-        AirtableClient client = new AirtableClient("fake-api-key");
+    void shouldValidateRecordCreationLimit() throws Exception {
+        RunContext runContext = runContextFactory.of();
+        AirtableClient client = new AirtableClient("fake-api-key", runContext);
 
         // Create 11 records (should fail - max 10)
         List<Map<String, Object>> tooManyRecords = List.of(

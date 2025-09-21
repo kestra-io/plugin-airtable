@@ -165,7 +165,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         logger.info("Updating record {} in Airtable base: {} table: {} with {} fields",
             rRecordId, rBaseId, rTableId, rFields.size());
 
-        AirtableClient client = new AirtableClient(rApiKey);
+        AirtableClient client = new AirtableClient(rApiKey, runContext);
         AirtableRecord updatedRecord = client.updateRecord(rBaseId, rTableId, rRecordId, rFields, rTypecast);
 
         logger.info("Successfully updated record: {}", updatedRecord.getId());

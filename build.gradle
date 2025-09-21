@@ -50,8 +50,6 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
 
-    // HTTP client for Airtable REST API
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }
 
 

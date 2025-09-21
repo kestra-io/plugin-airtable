@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuperBuilder
@@ -113,6 +114,8 @@ import java.util.Map;
 )
 public class Create extends Task implements RunnableTask<Create.Output> {
 
+    private static final int MAX_RECORDS_PER_BATCH = 10;
+
     @Schema(
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
@@ -146,10 +149,10 @@ public class Create extends Task implements RunnableTask<Create.Output> {
 
     @Schema(
         title = "Multiple records",
-        description = "List of records to create (max 10). Each record is a map of field names to values. Use this OR fields, not both."
+        description = "List of records to create (max " + MAX_RECORDS_PER_BATCH + "). Each record is a map of field names to values. Use this OR fields, not both."
     )
     @PluginProperty(dynamic = true)
-    private Property<java.util.List<Map<String, Object>>> records;
+    private Property<List<Map<String, Object>>> records;
 
     @Schema(
         title = "Typecast",
@@ -168,7 +171,7 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         String rTableId = runContext.render(this.tableId).as(String.class).orElseThrow();
         String rApiKey = runContext.render(this.apiKey).as(String.class).orElseThrow();
         Map<String, Object> rFields = runContext.render(this.fields).asMap(String.class, Object.class);
-        java.util.List<Map<String, Object>> rRecords = runContext.render(this.records).asList(Map.class);
+        List<Map<String, Object>> rRecords = runContext.render(this.records).asList(Map.class);
         Boolean rTypecast = runContext.render(this.typecast).as(Boolean.class).orElse(false);
 
         // Validate input - either fields or records should be provided, not both
@@ -180,7 +183,7 @@ public class Create extends Task implements RunnableTask<Create.Output> {
             throw new IllegalArgumentException("Cannot specify both 'fields' and 'records'. Use one or the other.");
         }
 
-        AirtableClient client = new AirtableClient(rApiKey);
+        AirtableClient client = new AirtableClient(rApiKey, runContext);
 
         if (rFields != null && !rFields.isEmpty()) {
             // Create single record
@@ -193,23 +196,23 @@ public class Create extends Task implements RunnableTask<Create.Output> {
             Map<String, Object> recordMap = convertRecordToMap(createdRecord);
             return Output.builder()
                 .record(recordMap)
-                .records(java.util.List.of(recordMap))
-                .recordIds(java.util.List.of(createdRecord.getId()))
+                .records(List.of(recordMap))
+                .recordIds(List.of(createdRecord.getId()))
                 .build();
         } else {
             // Create multiple records
-            if (rRecords.size() > 10) {
-                throw new IllegalArgumentException("Cannot create more than 10 records at once");
+            if (rRecords.size() > MAX_RECORDS_PER_BATCH) {
+                throw new IllegalArgumentException("Cannot create more than " + MAX_RECORDS_PER_BATCH + " records at once");
             }
 
             logger.info("Creating {} records in Airtable base: {} table: {}", rRecords.size(), rBaseId, rTableId);
 
-            java.util.List<AirtableRecord> createdRecords = client.createRecords(rBaseId, rTableId, rRecords, rTypecast);
+            List<AirtableRecord> createdRecords = client.createRecords(rBaseId, rTableId, rRecords, rTypecast);
 
             logger.info("Successfully created {} records", createdRecords.size());
 
-            java.util.List<Map<String, Object>> recordMaps = new ArrayList<>();
-            java.util.List<String> recordIds = new ArrayList<>();
+            List<Map<String, Object>> recordMaps = new ArrayList<>();
+            List<String> recordIds = new ArrayList<>();
 
             for (AirtableRecord record : createdRecords) {
                 recordMaps.add(convertRecordToMap(record));
@@ -249,12 +252,12 @@ public class Create extends Task implements RunnableTask<Create.Output> {
             title = "All created records",
             description = "List of all created records"
         )
-        private final java.util.List<Map<String, Object>> records;
+        private final List<Map<String, Object>> records;
 
         @Schema(
             title = "Record IDs",
             description = "List of IDs of the created records"
         )
-        private final java.util.List<String> recordIds;
+        private final List<String> recordIds;
     }
 }

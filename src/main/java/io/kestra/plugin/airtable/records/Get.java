@@ -57,6 +57,11 @@ import java.util.Map;
                 id: get_customer
                 namespace: company.airtable
 
+                inputs:
+                  - id: customer_id
+                    type: STRING
+                    required: true
+
                 tasks:
                   - id: get_customer_record
                     type: io.kestra.plugin.airtable.records.Get
@@ -122,7 +127,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
 
         logger.info("Getting record {} from Airtable base: {} table: {}", rRecordId, rBaseId, rTableId);
 
-        AirtableClient client = new AirtableClient(rApiKey);
+        AirtableClient client = new AirtableClient(rApiKey, runContext);
         AirtableRecord record = client.getRecord(rBaseId, rTableId, rRecordId, rFields);
 
         logger.info("Successfully retrieved record: {}", record.getId());

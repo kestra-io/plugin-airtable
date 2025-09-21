@@ -1,56 +1,161 @@
-id: airtable_example
+id: airtable_showcase
 namespace: company.airtable
 
+description: |
+  Comprehensive showcase of Airtable plugin capabilities
+  This flow demonstrates all major Airtable operations:
+  - List records with filtering and field selection
+  - Create single and multiple records
+  - Get specific records by ID
+  - Update existing records
+  - Delete records with cleanup
+
+inputs:
+  - id: base_id
+    type: STRING
+    description: "Airtable Base ID (starts with 'app')"
+    defaults: "{{ secret('AIRTABLE_BASE_ID') }}"
+  - id: cleanup
+    type: BOOLEAN
+    description: "Whether to delete created records at the end"
+    defaults: true
+
 tasks:
-  # List records with filtering
-  - id: list_tasks
+  # 1. List existing high-priority tasks
+  - id: list_high_priority_tasks
     type: io.kestra.plugin.airtable.records.List
-    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
     apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
     filterByFormula: "AND({Status} != 'Done', {Priority} = 'High')"
-    fields: ["Task Name", "Status", "Priority", "Due Date"]
+    fields: ["Task Name", "Status", "Priority", "Due Date", "Assignee"]
     maxRecords: 10
     fetchType: FETCH
 
-  # Create a new task
-  - id: create_task
+  # 2. Create a single task
+  - id: create_single_task
     type: io.kestra.plugin.airtable.records.Create
-    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
     apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
     fields:
-      "Task Name": "Example Task from Kestra"
+      "Task Name": "Kestra Integration Task - {{ now() | date('yyyy-MM-dd HH:mm') }}"
       "Status": "Todo"
       "Priority": "Medium"
       "Due Date": "{{ now() | dateAdd(7, 'DAYS') | date('yyyy-MM-dd') }}"
+      "Description": "Task created by Kestra workflow for testing Airtable integration"
     typecast: true
 
-  # Get the created task
+  # 3. Create multiple tasks in batch
+  - id: create_multiple_tasks
+    type: io.kestra.plugin.airtable.records.Create
+    baseId: "{{ inputs.base_id }}"
+    tableId: "Tasks"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    records:
+      - "Task Name": "Batch Task 1"
+        "Status": "Todo"
+        "Priority": "Low"
+        "Due Date": "{{ now() | dateAdd(3, 'DAYS') | date('yyyy-MM-dd') }}"
+      - "Task Name": "Batch Task 2"
+        "Status": "Todo"
+        "Priority": "High"
+        "Due Date": "{{ now() | dateAdd(5, 'DAYS') | date('yyyy-MM-dd') }}"
+      - "Task Name": "Batch Task 3"
+        "Status": "In Progress"
+        "Priority": "Medium"
+        "Due Date": "{{ now() | dateAdd(10, 'DAYS') | date('yyyy-MM-dd') }}"
+    typecast: true
+
+  # 4. Get the single created task details
   - id: get_created_task
     type: io.kestra.plugin.airtable.records.Get
-    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    recordId: "{{ outputs.create_task.recordIds[0] }}"
+    recordId: "{{ outputs.create_single_task.recordIds[0] }}"
     apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
-    fields: ["Task Name", "Status", "Priority", "Due Date"]
+    fields: ["Task Name", "Status", "Priority", "Due Date", "Description"]
 
-  # Update the task status
-  - id: update_task_status
+  # 5. Update the single task with progress
+  - id: update_task_progress
     type: io.kestra.plugin.airtable.records.Update
-    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+    baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    recordId: "{{ outputs.create_task.recordIds[0] }}"
+    recordId: "{{ outputs.create_single_task.recordIds[0] }}"
     apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
     fields:
       "Status": "In Progress"
-      "Progress": 25
+      "Progress": 50
+      "Notes": "Updated by Kestra workflow - {{ now() | date('yyyy-MM-dd HH:mm:ss') }}"
+    typecast: true
 
-  # Clean up - delete the example task
-  - id: cleanup_task
-    type: io.kestra.plugin.airtable.records.Delete
-    baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
+  # 6. List all created tasks to verify operations
+  - id: verify_created_tasks
+    type: io.kestra.plugin.airtable.records.List
+    baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    recordId: "{{ outputs.create_task.recordIds[0] }}"
     apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
-    runIf: "{{ inputs.cleanup | default(true) }}"
+    filterByFormula: "SEARCH('Kestra', {Task Name})"
+    fields: ["Task Name", "Status", "Priority", "Due Date"]
+    fetchType: FETCH
+
+  # 7. Store results for analysis (optional)
+  - id: store_results
+    type: io.kestra.plugin.airtable.records.List
+    baseId: "{{ inputs.base_id }}"
+    tableId: "Tasks"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    filterByFormula: "SEARCH('Kestra', {Task Name})"
+    fetchType: STORE
+
+  # 8. Conditional cleanup - delete created records
+  - id: cleanup_single_task
+    type: io.kestra.plugin.airtable.records.Delete
+    baseId: "{{ inputs.base_id }}"
+    tableId: "Tasks"
+    recordId: "{{ outputs.create_single_task.recordIds[0] }}"
+    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    runIf: "{{ inputs.cleanup }}"
+
+  # 9. Clean up batch created tasks
+  - id: cleanup_batch_tasks
+    type: io.kestra.plugin.core.flow.ForEach
+    runIf: "{{ inputs.cleanup }}"
+    values: "{{ outputs.create_multiple_tasks.recordIds }}"
+    tasks:
+      - id: delete_batch_task
+        type: io.kestra.plugin.airtable.records.Delete
+        baseId: "{{ inputs.base_id }}"
+        tableId: "Tasks"
+        recordId: "{{ taskrun.value }}"
+        apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+
+  # 10. Final summary
+  - id: workflow_summary
+    type: io.kestra.plugin.core.log.Log
+    message: |
+      Airtable Showcase Workflow Completed!
+
+      Operations performed:
+      - Listed {{ outputs.list_high_priority_tasks.rows | length }} high-priority tasks
+      - Created 1 single task: {{ outputs.create_single_task.record.fields['Task Name'] }}
+      - Created {{ outputs.create_multiple_tasks.records | length }} batch tasks
+      - Updated task progress to 50%
+      - {{ inputs.cleanup ? 'Cleaned up all created records' : 'Left records for manual review' }}
+
+      Total operations: 8-10 (depending on cleanup)
+      Store URI: {{ outputs.store_results.uri | default('Not stored') }}
+
+outputs:
+  - id: high_priority_count
+    value: "{{ outputs.list_high_priority_tasks.rows | length }}"
+    type: INT
+  - id: created_single_task_id
+    value: "{{ outputs.create_single_task.recordIds[0] }}"
+    type: STRING
+  - id: created_batch_task_ids
+    value: "{{ outputs.create_multiple_tasks.recordIds }}"
+    type: JSON
+  - id: stored_results_uri
+    value: "{{ outputs.store_results.uri | default(null) }}"
+    type: STRING

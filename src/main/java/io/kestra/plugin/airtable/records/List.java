@@ -182,7 +182,7 @@ public class List extends Task implements RunnableTask<List.Output> {
 
         logger.info("Listing records from Airtable base: {} table: {}", rBaseId, rTableId);
 
-        AirtableClient client = new AirtableClient(rApiKey);
+        AirtableClient client = new AirtableClient(rApiKey, runContext);
         java.util.List<AirtableRecord> allRecords = new ArrayList<>();
         String offset = null;
         int totalFetched = 0;
