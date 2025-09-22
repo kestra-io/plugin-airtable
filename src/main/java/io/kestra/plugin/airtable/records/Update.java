@@ -2,7 +2,6 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -102,7 +101,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> baseId;
 
@@ -110,7 +108,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "Table ID or name",
         description = "The ID or name of the table within the base"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> tableId;
 
@@ -118,7 +115,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "Record ID",
         description = "The ID of the record to update (starts with 'rec')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> recordId;
 
@@ -126,7 +122,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "API key",
         description = "Airtable API key for authentication"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> apiKey;
 
@@ -134,7 +129,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "Fields to update",
         description = "Map of field names to new values. Only these fields will be updated."
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<Map<String, Object>> fields;
 
@@ -142,7 +136,6 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         title = "Typecast",
         description = "Enable automatic data conversion from string values"
     )
-    @PluginProperty(dynamic = true)
     @Builder.Default
     private Property<Boolean> typecast = Property.ofValue(false);
 

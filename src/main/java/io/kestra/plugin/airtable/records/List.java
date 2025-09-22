@@ -2,7 +2,6 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -100,7 +99,6 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> baseId;
 
@@ -108,7 +106,6 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "Table ID or name",
         description = "The ID or name of the table within the base"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> tableId;
 
@@ -116,7 +113,6 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "API key",
         description = "Airtable API key for authentication"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> apiKey;
 
@@ -124,35 +120,30 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "Filter by formula",
         description = "Airtable formula to filter records. Example: AND({Status} != 'Done', {Priority} = 'High')"
     )
-    @PluginProperty(dynamic = true)
     private Property<String> filterByFormula;
 
     @Schema(
         title = "Fields",
         description = "List of field names to retrieve. If not specified, all fields are returned."
     )
-    @PluginProperty(dynamic = true)
     private Property<java.util.List<String>> fields;
 
     @Schema(
         title = "Maximum records",
         description = "Maximum number of records to return per page (max 100)"
     )
-    @PluginProperty(dynamic = true)
     private Property<Integer> maxRecords;
 
     @Schema(
         title = "View",
         description = "Name or ID of a view to use. Records will be returned in the order of the view."
     )
-    @PluginProperty(dynamic = true)
     private Property<String> view;
 
     @Schema(
         title = "Enable auto-pagination",
         description = "Whether to automatically fetch all pages of results"
     )
-    @PluginProperty(dynamic = true)
     @Builder.Default
     private Property<Boolean> enableAutoPagination = Property.ofValue(false);
 
@@ -160,7 +151,6 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "Fetch type",
         description = "How to handle query results"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     @Builder.Default
     private Property<FetchType> fetchType = Property.ofValue(FetchType.FETCH);

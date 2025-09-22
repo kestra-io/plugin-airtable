@@ -2,7 +2,6 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -79,7 +78,6 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> baseId;
 
@@ -87,7 +85,6 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "Table ID or name",
         description = "The ID or name of the table within the base"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> tableId;
 
@@ -95,7 +92,6 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "Record ID",
         description = "The ID of the record to retrieve (starts with 'rec')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> recordId;
 
@@ -103,7 +99,6 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "API key",
         description = "Airtable API key for authentication"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> apiKey;
 
@@ -111,7 +106,6 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "Fields",
         description = "List of field names to retrieve. If not specified, all fields are returned."
     )
-    @PluginProperty(dynamic = true)
     private Property<java.util.List<String>> fields;
 
     @Override

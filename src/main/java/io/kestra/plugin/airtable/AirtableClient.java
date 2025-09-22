@@ -27,6 +27,7 @@ public class AirtableClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AirtableClient.class);
     private static final String BASE_URL = "https://api.airtable.com/v0";
+    public static final int MAX_RECORDS_PER_BATCH = 10;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -161,12 +162,12 @@ public class AirtableClient {
     }
 
     /**
-     * Create multiple records at once (max 10).
+     * Create multiple records at once (max " + MAX_RECORDS_PER_BATCH + ").
      */
     public List<AirtableRecord> createRecords(String baseId, String tableId, List<Map<String, Object>> recordsFields,
                                             Boolean typecast) throws Exception {
-        if (recordsFields.size() > 10) {
-            throw new IllegalArgumentException("Cannot create more than 10 records at once");
+        if (recordsFields.size() > MAX_RECORDS_PER_BATCH) {
+            throw new IllegalArgumentException("Cannot create more than " + MAX_RECORDS_PER_BATCH + " records at once");
         }
 
         String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8);

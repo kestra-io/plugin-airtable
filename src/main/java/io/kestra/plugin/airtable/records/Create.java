@@ -2,13 +2,14 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.airtable.AirtableClient;
 import io.kestra.plugin.airtable.AirtableRecord;
+
+import static io.kestra.plugin.airtable.AirtableClient.MAX_RECORDS_PER_BATCH;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -114,13 +115,10 @@ import java.util.Map;
 )
 public class Create extends Task implements RunnableTask<Create.Output> {
 
-    private static final int MAX_RECORDS_PER_BATCH = 10;
-
     @Schema(
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> baseId;
 
@@ -128,7 +126,6 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         title = "Table ID or name",
         description = "The ID or name of the table within the base"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> tableId;
 
@@ -136,7 +133,6 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         title = "API key",
         description = "Airtable API key for authentication"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> apiKey;
 
@@ -144,21 +140,18 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         title = "Fields for single record",
         description = "Field values for creating a single record. Use this OR records, not both."
     )
-    @PluginProperty(dynamic = true)
     private Property<Map<String, Object>> fields;
 
     @Schema(
         title = "Multiple records",
         description = "List of records to create (max " + MAX_RECORDS_PER_BATCH + "). Each record is a map of field names to values. Use this OR fields, not both."
     )
-    @PluginProperty(dynamic = true)
     private Property<List<Map<String, Object>>> records;
 
     @Schema(
         title = "Typecast",
         description = "Enable automatic data conversion from string values"
     )
-    @PluginProperty(dynamic = true)
     @Builder.Default
     private Property<Boolean> typecast = Property.ofValue(false);
 

@@ -2,7 +2,6 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -111,7 +110,6 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
         title = "Airtable base ID",
         description = "The ID of the Airtable base (starts with 'app')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> baseId;
 
@@ -119,7 +117,6 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
         title = "Table ID or name",
         description = "The ID or name of the table within the base"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> tableId;
 
@@ -127,7 +124,6 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
         title = "Record ID",
         description = "The ID of the record to delete (starts with 'rec')"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> recordId;
 
@@ -135,7 +131,6 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
         title = "API key",
         description = "Airtable API key for authentication"
     )
-    @PluginProperty(dynamic = true)
     @NotNull
     private Property<String> apiKey;
 
