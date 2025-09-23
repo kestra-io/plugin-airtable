@@ -48,10 +48,26 @@ class DeleteTest {
             .apiKey(Property.ofValue("fake-api-key"))
             .build();
 
+        // Verify all properties are properly set
         assertThat(task.getBaseId(), is(notNullValue()));
         assertThat(task.getTableId(), is(notNullValue()));
         assertThat(task.getRecordId(), is(notNullValue()));
         assertThat(task.getApiKey(), is(notNullValue()));
+
+        // Verify the task can be executed (should fail with fake credentials)
+        RunContext runContext = runContextFactory.of();
+
+        // Task should fail due to invalid API key, but this proves it's properly built and runnable
+        Exception exception = assertThrows(Exception.class, () -> task.run(runContext));
+        assertThat("Should fail with authentication or API error due to fake credentials",
+            exception.getMessage(), anyOf(
+                containsString("INVALID_AUTHORIZATION"),
+                containsString("NOT_FOUND"),
+                containsString("403"),
+                containsString("401"),
+                containsString("authentication"),
+                containsString("authorization")
+            ));
     }
 
     @Test
