@@ -48,7 +48,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.Create
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Tasks"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields:
                       "Task Name": "Implement new feature"
                       "Status": "Todo"
@@ -69,7 +69,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.Create
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Customers"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     records:
                       - "Name": "Acme Corp"
                         "Email": "contact@acme.com"
@@ -103,7 +103,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.Create
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Orders"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields:
                       "Customer": "{{ inputs.customer_name }}"
                       "Product": "{{ inputs.product }}"

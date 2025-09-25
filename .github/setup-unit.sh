@@ -5,9 +5,9 @@ echo "🔍 Verifying Airtable API Setup..."
 echo
 
 # Check environment variables
-if [ -z "$AIRTABLE_API_KEY" ]; then
-    echo "❌ AIRTABLE_API_KEY not set"
-    echo "   Set it with: export AIRTABLE_API_KEY='your_token'"
+if [ -z "$AIRTABLE_PERSONAL_ACCESS_TOKEN" ]; then
+    echo "❌ AIRTABLE_PERSONAL_ACCESS_TOKEN not set"
+    echo "   Set it with: export AIRTABLE_PERSONAL_ACCESS_TOKEN='your_token'"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ if [ -z "$AIRTABLE_BASE_ID" ]; then
 fi
 
 echo "✅ Environment variables set"
-echo "   API Key: ${AIRTABLE_API_KEY:0:20}..."
+echo "   Personal Access Token: ${AIRTABLE_PERSONAL_ACCESS_TOKEN:0:20}..."
 echo "   Base ID: $AIRTABLE_BASE_ID"
 echo
 
@@ -28,7 +28,7 @@ TABLE_NAME="${AIRTABLE_TABLE_ID:-Table1}"
 
 # Test 1: List base schema (requires schema.bases:read)
 echo "📋 Testing base schema access..."
-SCHEMA_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $AIRTABLE_API_KEY" \
+SCHEMA_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $AIRTABLE_PERSONAL_ACCESS_TOKEN" \
     "https://api.airtable.com/v0/meta/bases/$AIRTABLE_BASE_ID/tables")
 
 HTTP_CODE="${SCHEMA_RESPONSE: -3}"
@@ -47,7 +47,7 @@ echo
 
 # Test 2: List records (requires data.records:read)
 echo "📖 Testing record read access on table '$TABLE_NAME'..."
-RECORDS_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $AIRTABLE_API_KEY" \
+RECORDS_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: Bearer $AIRTABLE_PERSONAL_ACCESS_TOKEN" \
     "https://api.airtable.com/v0/$AIRTABLE_BASE_ID/$TABLE_NAME?maxRecords=1")
 
 HTTP_CODE="${RECORDS_RESPONSE: -3}"

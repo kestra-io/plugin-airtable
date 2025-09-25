@@ -45,7 +45,7 @@ import java.util.Map;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Tasks"
                     recordId: "recXXXXXXXXXXXXXX"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields: ["Task Name", "Status", "Priority", "Due Date"]
                 """
         ),
@@ -67,7 +67,7 @@ import java.util.Map;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Customers"
                     recordId: "{{ inputs.customer_id }}"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                 """
         )
     }

@@ -49,7 +49,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.List
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Tasks"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     filterByFormula: "AND({Status} != 'Done', {Priority} = 'High')"
                     fields: ["Task Name", "Status", "Priority", "Due Date"]
                     maxRecords: 50
@@ -68,7 +68,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.List
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Customers"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     view: "Active Customers"
                     fetchType: STORE
                 """
@@ -85,7 +85,7 @@ import java.util.Map;
                     type: io.kestra.plugin.airtable.records.List
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Orders"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     maxRecords: 100
                     enableAutoPagination: true
                     fetchType: FETCH

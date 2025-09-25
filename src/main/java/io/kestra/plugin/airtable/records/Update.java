@@ -45,7 +45,7 @@ import java.util.Map;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Tasks"
                     recordId: "recXXXXXXXXXXXXXX"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields:
                       "Status": "In Progress"
                       "Progress": 50
@@ -66,7 +66,7 @@ import java.util.Map;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Customers"
                     recordId: "{{ inputs.customer_record_id }}"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields:
                       "Email": "{{ inputs.new_email }}"
                       "Phone": "{{ inputs.new_phone }}"
@@ -86,7 +86,7 @@ import java.util.Map;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Orders"
                     recordId: "{{ inputs.order_id }}"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     fields:
                       "Status": "{{ inputs.status }}"
                       "Completed Date": "{{ inputs.status == 'Completed' ? now() : null }}"

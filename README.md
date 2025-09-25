@@ -69,7 +69,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.List
     baseId: appXXXXXXXXXXXXXX           # Airtable base ID
     tableId: Tasks                      # Table name or ID
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"  # API key
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"  # API key
 ```
 
 ### Example: List High-Priority Tasks
@@ -83,7 +83,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.List
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     filterByFormula: "AND({Status} != 'Done', {Priority} = 'High')"
     fields: ["Task Name", "Status", "Priority", "Due Date"]
     maxRecords: 50
@@ -103,7 +103,7 @@ tasks:
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Tasks"
     recordId: "recXXXXXXXXXXXXXX"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields: ["Task Name", "Status", "Priority", "Assignee"]
 ```
 
@@ -118,7 +118,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.Create
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Task Name": "Implement new feature"
       "Status": "Todo"
@@ -155,7 +155,7 @@ tasks:
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Tasks"
     recordId: "recXXXXXXXXXXXXXX"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Status": "In Progress"
       "Progress": 50
@@ -177,7 +177,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.Create
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Customers"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Name": "Acme Corporation"
       "Email": "contact@acme.com"
@@ -191,7 +191,7 @@ tasks:
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Customers"
     recordId: "{{ outputs.create_customer.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Phone": "+1-555-0123"
       "Status": "Active"
@@ -203,7 +203,7 @@ tasks:
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Customers"
     recordId: "{{ outputs.create_customer.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields: ["Name", "Email", "Phone", "Status", "Last Contact"]
 
   # Step 4: Clean up - delete the test customer (optional)
@@ -212,7 +212,7 @@ tasks:
     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
     tableId: "Customers"
     recordId: "{{ outputs.create_customer.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     runIf: "{{ inputs.cleanup | default(false) }}"
 ```
 
@@ -220,10 +220,10 @@ tasks:
 
 ### Authentication
 
-All tasks require an Airtable API key for authentication. You can obtain this from your [Airtable account settings](https://airtable.com/create/tokens).
+All tasks require an Airtable Personal Access Token for authentication. You can obtain this from your [Airtable account settings](https://airtable.com/create/tokens).
 
 ```yaml
-apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
 ```
 
 ### Base and Table Identification
@@ -266,7 +266,7 @@ Add this plugin to your Kestra instance:
 
 ### Prerequisites
 - Java 21+
-- Airtable API key for testing
+- Airtable Personal Access Token for testing
 
 ### Building
 
@@ -281,14 +281,14 @@ Add this plugin to your Kestra instance:
 ./gradlew test
 
 # Integration tests (requires environment variables)
-AIRTABLE_API_KEY=your_key AIRTABLE_BASE_ID=your_base ./gradlew test
+AIRTABLE_PERSONAL_ACCESS_TOKEN=your_key AIRTABLE_BASE_ID=your_base ./gradlew test
 ```
 
 ### Environment Variables Required for Integration Testing
 
 ```bash
 AIRTABLE_INTEGRATION_TESTS=true
-AIRTABLE_API_KEY=your_api_key
+AIRTABLE_PERSONAL_ACCESS_TOKEN=your_api_key
 AIRTABLE_BASE_ID=your_base_id
 AIRTABLE_TABLE_ID=your_table_id  # Optional, defaults to "Table1"
 ```

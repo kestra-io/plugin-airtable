@@ -43,7 +43,7 @@ import org.slf4j.Logger;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Tasks"
                     recordId: "recXXXXXXXXXXXXXX"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                 """
         ),
         @Example(
@@ -58,7 +58,7 @@ import org.slf4j.Logger;
                     type: io.kestra.plugin.airtable.records.List
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Temporary"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     filterByFormula: "{Status} = 'To Delete'"
                     fetchType: FETCH_ONE
 
@@ -67,7 +67,7 @@ import org.slf4j.Logger;
                     baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                     tableId: "Temporary"
                     recordId: "{{ outputs.find_record_to_delete.row.id }}"
-                    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                 """
         ),
         @Example(
@@ -95,7 +95,7 @@ import org.slf4j.Logger;
                         baseId: "{{ secret('AIRTABLE_BASE_ID') }}"
                         tableId: "Orders"
                         recordId: "{{ inputs.order_id }}"
-                        apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+                        apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
                     else:
                       - id: skip_deletion
                         type: io.kestra.plugin.core.log.Log

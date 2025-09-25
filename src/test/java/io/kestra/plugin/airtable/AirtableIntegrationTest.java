@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * To run these tests:
  * 1. Set environment variables:
  *    - AIRTABLE_INTEGRATION_TESTS=true
- *    - AIRTABLE_API_KEY=your_api_key
+ *    - AIRTABLE_PERSONAL_ACCESS_TOKEN=your_token
  *    - AIRTABLE_BASE_ID=your_base_id
  *    - AIRTABLE_TABLE_ID=your_table_id (optional, defaults to "Table1")
  * 2. Run: ./gradlew test
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @KestraTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
-@EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
+@EnabledIfEnvironmentVariable(named = "AIRTABLE_PERSONAL_ACCESS_TOKEN", matches = ".*")
 @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
 class AirtableIntegrationTest {
 
@@ -46,7 +46,7 @@ class AirtableIntegrationTest {
     private static java.util.List<String> batchCreatedRecordIds;
 
     private String getApiKey() {
-        return System.getenv("AIRTABLE_API_KEY");
+        return System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
     }
 
     private String getBaseId() {

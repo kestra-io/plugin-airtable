@@ -26,7 +26,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.List
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     filterByFormula: "AND({Status} != 'Done', {Priority} = 'High')"
     fields: ["Task Name", "Status", "Priority", "Due Date", "Assignee"]
     maxRecords: 10
@@ -37,7 +37,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.Create
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Task Name": "Kestra Integration Task - {{ now() | date('yyyy-MM-dd HH:mm') }}"
       "Status": "Todo"
@@ -51,7 +51,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.Create
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     records:
       - "Task Name": "Batch Task 1"
         "Status": "Todo"
@@ -73,7 +73,7 @@ tasks:
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
     recordId: "{{ outputs.create_single_task.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields: ["Task Name", "Status", "Priority", "Due Date", "Description"]
 
   # 5. Update the single task with progress
@@ -82,7 +82,7 @@ tasks:
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
     recordId: "{{ outputs.create_single_task.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     fields:
       "Status": "In Progress"
       "Progress": 50
@@ -94,7 +94,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.List
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     filterByFormula: "SEARCH('Kestra', {Task Name})"
     fields: ["Task Name", "Status", "Priority", "Due Date"]
     fetchType: FETCH
@@ -104,7 +104,7 @@ tasks:
     type: io.kestra.plugin.airtable.records.List
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     filterByFormula: "SEARCH('Kestra', {Task Name})"
     fetchType: STORE
 
@@ -114,7 +114,7 @@ tasks:
     baseId: "{{ inputs.base_id }}"
     tableId: "Tasks"
     recordId: "{{ outputs.create_single_task.recordIds[0] }}"
-    apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+    apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
     runIf: "{{ inputs.cleanup }}"
 
   # 9. Clean up batch created tasks
@@ -128,7 +128,7 @@ tasks:
         baseId: "{{ inputs.base_id }}"
         tableId: "Tasks"
         recordId: "{{ taskrun.value }}"
-        apiKey: "{{ secret('AIRTABLE_API_KEY') }}"
+        apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
 
   # 10. Final summary
   - id: workflow_summary

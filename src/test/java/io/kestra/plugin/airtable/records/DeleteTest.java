@@ -72,10 +72,10 @@ class DeleteTest {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
-    @EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AIRTABLE_PERSONAL_ACCESS_TOKEN", matches = ".*")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
     void shouldDeleteRecord() throws Exception {
-        String apiKey = System.getenv("AIRTABLE_API_KEY");
+        String apiKey = System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
         String baseId = System.getenv("AIRTABLE_BASE_ID");
         String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ?
             System.getenv("AIRTABLE_TABLE_ID") : "Table1";
@@ -153,10 +153,10 @@ class DeleteTest {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
-    @EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AIRTABLE_PERSONAL_ACCESS_TOKEN", matches = ".*")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
     void shouldFailToDeleteNonExistentRecord() {
-        String apiKey = System.getenv("AIRTABLE_API_KEY");
+        String apiKey = System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
         String baseId = System.getenv("AIRTABLE_BASE_ID");
         String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ?
             System.getenv("AIRTABLE_TABLE_ID") : "Table1";
@@ -181,10 +181,10 @@ class DeleteTest {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
-    @EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AIRTABLE_PERSONAL_ACCESS_TOKEN", matches = ".*")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
     void shouldDeleteRecordAfterUpdate() throws Exception {
-        String apiKey = System.getenv("AIRTABLE_API_KEY");
+        String apiKey = System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
         String baseId = System.getenv("AIRTABLE_BASE_ID");
         String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ?
             System.getenv("AIRTABLE_TABLE_ID") : "Table1";
@@ -263,10 +263,10 @@ class DeleteTest {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_INTEGRATION_TESTS", matches = "true")
-    @EnabledIfEnvironmentVariable(named = "AIRTABLE_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AIRTABLE_PERSONAL_ACCESS_TOKEN", matches = ".*")
     @EnabledIfEnvironmentVariable(named = "AIRTABLE_BASE_ID", matches = ".*")
     void shouldDeleteMultipleRecordsSequentially() throws Exception {
-        String apiKey = System.getenv("AIRTABLE_API_KEY");
+        String apiKey = System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
         String baseId = System.getenv("AIRTABLE_BASE_ID");
         String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ?
             System.getenv("AIRTABLE_TABLE_ID") : "Table1";
