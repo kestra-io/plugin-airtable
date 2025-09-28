@@ -5,16 +5,35 @@ echo "🔍 Verifying Airtable API Setup..."
 echo
 
 # Check environment variables
+MISSING_CREDENTIALS=false
+
 if [ -z "$AIRTABLE_PERSONAL_ACCESS_TOKEN" ]; then
-    echo "❌ AIRTABLE_PERSONAL_ACCESS_TOKEN not set"
+    echo "⚠️  AIRTABLE_PERSONAL_ACCESS_TOKEN not set"
     echo "   Set it with: export AIRTABLE_PERSONAL_ACCESS_TOKEN='your_token'"
-    exit 1
+    MISSING_CREDENTIALS=true
 fi
 
 if [ -z "$AIRTABLE_BASE_ID" ]; then
-    echo "❌ AIRTABLE_BASE_ID not set"
+    echo "⚠️  AIRTABLE_BASE_ID not set"
     echo "   Set it with: export AIRTABLE_BASE_ID='your_base_id'"
-    exit 1
+    MISSING_CREDENTIALS=true
+fi
+
+if [ "$MISSING_CREDENTIALS" = true ]; then
+    echo
+    echo "ℹ️  Integration tests will be skipped without credentials"
+    echo "   Unit tests will still run and verify task building and validation"
+    echo "   To enable integration tests, set the required environment variables"
+    echo
+    echo "🧪 Unit tests can be run with:"
+    echo "   ./gradlew test"
+    echo
+    echo "🧪 To run integration tests, set credentials and run:"
+    echo "   export AIRTABLE_INTEGRATION_TESTS=true"
+    echo "   export AIRTABLE_PERSONAL_ACCESS_TOKEN='your_token'"
+    echo "   export AIRTABLE_BASE_ID='your_base_id'"
+    echo "   ./gradlew test"
+    exit 0
 fi
 
 echo "✅ Environment variables set"
