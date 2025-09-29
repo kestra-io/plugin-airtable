@@ -1,6 +1,6 @@
-# Kestra Plugin Devcontainer
+# Kestra Airtable Plugin Devcontainer
 
-This devcontainer provides a quick and easy setup for anyone using VSCode to get up and running quickly with plugin development for Kestra. It bootstraps a docker container for you to develop inside of without the need to manually setup the environment for developing plugins.
+This devcontainer provides a quick and easy setup for anyone using VSCode to get up and running quickly with Airtable plugin development for Kestra. It bootstraps a docker container for you to develop inside of without the need to manually setup the environment for developing Airtable plugins.
 
 ---
 
