@@ -1,0 +1,8 @@
+group: io.kestra.plugin.airtable.records
+name: "records"
+title: "Airtable Record"
+description: "This sub-group of plugins contains tasks to interact with Airtable Records."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
