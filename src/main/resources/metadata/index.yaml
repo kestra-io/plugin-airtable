@@ -1,0 +1,8 @@
+group: io.kestra.plugin.airtable
+name: "airtable"
+title: "Airtable"
+description: "Integrate with Airtable bases and tables via REST API for data orchestration and workflow automation. Support for CRUD operations, filtering, pagination, and AI Agent compatibility."
+body: ""
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
