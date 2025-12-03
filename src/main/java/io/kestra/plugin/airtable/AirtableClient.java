@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * HTTP client for interacting with Airtable REST API.
@@ -100,15 +101,6 @@ public class AirtableClient {
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
             throws Exception {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId);
-        boolean hasParams = false;
-
-        if (fields != null && !fields.isEmpty()) {
-            for (String field : fields) {
-                urlBuilder.append(hasParams ? "&" : "?").append("fields[]=")
-                    .append(URLEncoder.encode(field, StandardCharsets.UTF_8));
-                hasParams = true;
-            }
-        }
 
         HttpRequest request = HttpRequest.builder()
             .method("GET")
@@ -120,7 +112,14 @@ public class AirtableClient {
 
         try {
             HttpResponse<String> response = httpClient.request(request, String.class);
-            return parseRecordResponse(response.getBody());
+            AirtableRecord rec = parseRecordResponse(response.getBody());
+            if(fields != null && !fields.isEmpty()){
+                Map<String,Object> filteredFields = rec.getFields().entrySet().stream()
+                    .filter(e -> fields.contains(e.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+                return new AirtableRecord(rec.getId(),rec.getCreatedTime(),filteredFields);
+            }
+            return rec;
         } catch (HttpClientResponseException e) {
             String statusCode = e.getResponse() != null ? String.valueOf(e.getResponse().getStatus().getCode()) : "unknown";
             String responseBody = e.getResponse() != null ? String.valueOf(e.getResponse().getBody()) : "unknown";
