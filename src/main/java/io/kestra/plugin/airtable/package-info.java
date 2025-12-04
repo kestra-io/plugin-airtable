@@ -1,7 +1,7 @@
 @PluginSubGroup(
     title = "Airtable",
-    description = "Integrate with Airtable bases and tables via REST API for data orchestration and workflow automation. " +
-                  "Support for CRUD operations, filtering, pagination, and AI Agent compatibility.",
+    description = "Tasks that connect to Airtable bases and tables over the REST API for workflow automation. " +
+                  "Provides record CRUD operations with formula filtering, view-aware pagination, batch handling, typecasting, and outputs suited to AI Agent workflows.",
     categories = PluginSubGroup.PluginCategory.TOOL
 )
 package io.kestra.plugin.airtable;
