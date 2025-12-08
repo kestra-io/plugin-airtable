@@ -2,6 +2,7 @@ package io.kestra.plugin.airtable.records;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @SuperBuilder
 @ToString
@@ -108,6 +110,12 @@ public class Get extends Task implements RunnableTask<Get.Output> {
     )
     private Property<java.util.List<String>> fields;
 
+    @Schema(
+        title = "Fail on Missing Fields",
+        description = "If true, the task will throw an error when any requested field is not found in the Airtable record."
+    )
+    private Property<Boolean> failOnMissing = Property.ofValue(false);
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
@@ -123,6 +131,19 @@ public class Get extends Task implements RunnableTask<Get.Output> {
 
         AirtableClient client = new AirtableClient(rApiKey, runContext);
         AirtableRecord record = client.getRecord(rBaseId, rTableId, rRecordId, rFields);
+
+        if (rFields != null && !rFields.isEmpty() && runContext.render(failOnMissing).as(Boolean.class).orElse(false)) {
+            Map<String, Object> recFields = record.getFields() != null ? record.getFields() : Map.of();
+
+            java.util.List<String> missing = rFields.stream()
+                .filter(f -> !recFields.containsKey(f))
+                .toList();
+
+            if (!missing.isEmpty()) {
+                throw new IllegalArgumentException("Missing fields in Airtable record '" + rRecordId + "': " + missing
+                );
+            }
+        }
 
         logger.info("Successfully retrieved record: {}", record.getId());
 
