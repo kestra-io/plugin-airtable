@@ -1,0 +1,8 @@
+group: io.kestra.plugin.airtable.records
+name: "records"
+title: "Airtable Record"
+description: "Tasks that read and write Airtable records: list rows with filters, views, and pagination, fetch a record by ID, create single or batched records with optional typecasting, patch updates, and deletes."
+body: " Use API key authentication and choose fetch/store outputs depending on whether you want data in-flow or stored."
+videos: []
+createdBy: "Kestra Core Team"
+managedBy: "Kestra Core Team"
