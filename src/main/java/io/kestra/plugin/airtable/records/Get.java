@@ -29,8 +29,8 @@ import java.util.Properties;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Get a single record from an Airtable table",
-    description = "Retrieve a specific record by its ID from an Airtable table with optional field selection."
+    title = "Fetch Airtable record by ID",
+    description = "Retrieves one record from a table using recordId; returns all fields unless a field list is provided. Set failOnMissing to true to error when requested fields are absent."
 )
 @Plugin(
     examples = {
@@ -112,7 +112,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
 
     @Schema(
         title = "Fail on Missing Fields",
-        description = "If true, the task will throw an error when any requested field is not found in the Airtable record."
+        description = "When true (default false), throws if any requested field is missing from the record."
     )
     private Property<Boolean> failOnMissing = Property.ofValue(false);
 
