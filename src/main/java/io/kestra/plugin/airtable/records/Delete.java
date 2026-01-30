@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Delete a record from an Airtable table",
-    description = "Delete a specific record by its ID from an Airtable table. This operation cannot be undone."
+    title = "Delete Airtable record by ID",
+    description = "Permanently deletes one record from a table using recordId. Operation is irreversible; ensure upstream checks before calling."
 )
 @Plugin(
     examples = {
