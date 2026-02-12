@@ -27,8 +27,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Update a record in an Airtable table",
-    description = "Update fields in an existing record by its ID. Only specified fields will be updated (PATCH operation)."
+    title = "Patch fields on an Airtable record",
+    description = "Partially updates a record identified by recordId; only provided fields are patched. Typecast is off by default; enable to coerce string inputs to Airtable types."
 )
 @Plugin(
     examples = {

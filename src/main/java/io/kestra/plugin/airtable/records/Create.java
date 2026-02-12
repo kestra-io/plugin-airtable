@@ -31,8 +31,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Create a new record in an Airtable table.",
-    description = "Create one or more new records in an Airtable table. The task can create a single record or multiple records (max 10) in one operation."
+    title = "Create Airtable records (single or batch)",
+    description = "Creates one record from `fields` or multiple records from `records` (max " + MAX_RECORDS_PER_BATCH + " per call). Typecast is off by default; enable it to coerce string values. `fields` and `records` are mutually exclusive."
 )
 @Plugin(
     examples = {

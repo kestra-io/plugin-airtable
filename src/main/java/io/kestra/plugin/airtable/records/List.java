@@ -32,8 +32,8 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "List records from an Airtable table",
-    description = "Retrieve records from an Airtable table with support for filtering, field selection, pagination, and different output formats."
+    title = "List Airtable records with filters",
+    description = "Retrieves table records with optional formula filters, view ordering, field selection, and per-page caps (max 100). Auto-pagination is off by default; set enableAutoPagination to fetch all pages. Output follows fetchType: FETCH_ONE/FETCH return rows, STORE writes an Ion file to Kestra storage and returns its URI, NONE emits only the count."
 )
 @Plugin(
     examples = {
