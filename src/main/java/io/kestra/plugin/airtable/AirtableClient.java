@@ -1,17 +1,5 @@
 package io.kestra.plugin.airtable;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.kestra.core.http.HttpRequest;
-import io.kestra.core.http.HttpResponse;
-import io.kestra.core.http.client.HttpClient;
-import io.kestra.core.http.client.HttpClientResponseException;
-import io.kestra.core.runners.RunContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.kestra.core.http.HttpRequest;
+import io.kestra.core.http.HttpResponse;
+import io.kestra.core.http.client.HttpClient;
+import io.kestra.core.http.client.HttpClientResponseException;
+import io.kestra.core.runners.RunContext;
 
 /**
  * HTTP client for interacting with Airtable REST API.
@@ -46,8 +47,8 @@ public class AirtableClient {
      * List records from a table with optional filtering and pagination.
      */
     public AirtableListResponse listRecords(String baseId, String tableId, String filterByFormula,
-                                          List<String> fields, Integer maxRecords, String view,
-                                          String offset) throws Exception {
+        List<String> fields, Integer maxRecords, String view,
+        String offset) throws Exception {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8));
         boolean hasParams = false;
 
@@ -99,7 +100,7 @@ public class AirtableClient {
      * Get a single record by ID.
      */
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
-            throws Exception {
+        throws Exception {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId);
 
         HttpRequest request = HttpRequest.builder()
@@ -113,11 +114,11 @@ public class AirtableClient {
         try {
             HttpResponse<String> response = httpClient.request(request, String.class);
             AirtableRecord rec = parseRecordResponse(response.getBody());
-            if(fields != null && !fields.isEmpty()){
-                Map<String,Object> filteredFields = rec.getFields().entrySet().stream()
+            if (fields != null && !fields.isEmpty()) {
+                Map<String, Object> filteredFields = rec.getFields().entrySet().stream()
                     .filter(e -> fields.contains(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
-                return new AirtableRecord(rec.getId(),rec.getCreatedTime(),filteredFields);
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                return new AirtableRecord(rec.getId(), rec.getCreatedTime(), filteredFields);
             }
             return rec;
         } catch (HttpClientResponseException e) {
@@ -131,7 +132,7 @@ public class AirtableClient {
      * Create a new record.
      */
     public AirtableRecord createRecord(String baseId, String tableId, Map<String, Object> fields, Boolean typecast)
-            throws Exception {
+        throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8);
 
         Map<String, Object> requestBody = Map.of("fields", fields);
@@ -143,9 +144,11 @@ public class AirtableClient {
             .method("POST")
             .uri(URI.create(url))
             .addHeader("Authorization", "Bearer " + apiKey)
-            .body(HttpRequest.JsonRequestBody.builder()
-                .content(requestBody)
-                .build())
+            .body(
+                HttpRequest.JsonRequestBody.builder()
+                    .content(requestBody)
+                    .build()
+            )
             .build();
 
         logger.debug("Making POST request to: {}", url);
@@ -164,7 +167,7 @@ public class AirtableClient {
      * Create multiple records at once (max " + MAX_RECORDS_PER_BATCH + ").
      */
     public List<AirtableRecord> createRecords(String baseId, String tableId, List<Map<String, Object>> recordsFields,
-                                            Boolean typecast) throws Exception {
+        Boolean typecast) throws Exception {
         if (recordsFields.size() > MAX_RECORDS_PER_BATCH) {
             throw new IllegalArgumentException("Cannot create more than " + MAX_RECORDS_PER_BATCH + " records at once");
         }
@@ -185,9 +188,11 @@ public class AirtableClient {
             .method("POST")
             .uri(URI.create(url))
             .addHeader("Authorization", "Bearer " + apiKey)
-            .body(HttpRequest.JsonRequestBody.builder()
-                .content(requestBody)
-                .build())
+            .body(
+                HttpRequest.JsonRequestBody.builder()
+                    .content(requestBody)
+                    .build()
+            )
             .build();
 
         logger.debug("Making POST request to: {}", url);
@@ -206,8 +211,8 @@ public class AirtableClient {
      * Update a record.
      */
     public AirtableRecord updateRecord(String baseId, String tableId, String recordId,
-                                     Map<String, Object> fields, Boolean typecast)
-            throws Exception {
+        Map<String, Object> fields, Boolean typecast)
+        throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId;
 
         Map<String, Object> requestBody = Map.of("fields", fields);
@@ -219,9 +224,11 @@ public class AirtableClient {
             .method("PATCH")
             .uri(URI.create(url))
             .addHeader("Authorization", "Bearer " + apiKey)
-            .body(HttpRequest.JsonRequestBody.builder()
-                .content(requestBody)
-                .build())
+            .body(
+                HttpRequest.JsonRequestBody.builder()
+                    .content(requestBody)
+                    .build()
+            )
             .build();
 
         logger.debug("Making PATCH request to: {}", url);
@@ -240,7 +247,7 @@ public class AirtableClient {
      * Delete a record.
      */
     public AirtableRecord deleteRecord(String baseId, String tableId, String recordId)
-            throws Exception {
+        throws Exception {
         String url = BASE_URL + "/" + baseId + "/" + URLEncoder.encode(tableId, StandardCharsets.UTF_8) + "/" + recordId;
 
         HttpRequest request = HttpRequest.builder()

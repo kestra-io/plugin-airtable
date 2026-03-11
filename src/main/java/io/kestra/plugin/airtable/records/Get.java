@@ -1,14 +1,19 @@
 package io.kestra.plugin.airtable.records;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.airtable.AirtableClient;
 import io.kestra.plugin.airtable.AirtableRecord;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -17,11 +22,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.slf4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 @SuperBuilder
 @ToString
@@ -140,7 +140,8 @@ public class Get extends Task implements RunnableTask<Get.Output> {
                 .toList();
 
             if (!missing.isEmpty()) {
-                throw new IllegalArgumentException("Missing fields in Airtable record '" + rRecordId + "': " + missing
+                throw new IllegalArgumentException(
+                    "Missing fields in Airtable record '" + rRecordId + "': " + missing
                 );
             }
         }

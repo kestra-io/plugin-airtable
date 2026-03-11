@@ -1,5 +1,12 @@
 package io.kestra.plugin.airtable.records;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -9,7 +16,6 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.airtable.AirtableClient;
 import io.kestra.plugin.airtable.AirtableRecord;
 
-import static io.kestra.plugin.airtable.AirtableClient.MAX_RECORDS_PER_BATCH;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -18,12 +24,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static io.kestra.plugin.airtable.AirtableClient.MAX_RECORDS_PER_BATCH;
 
 @SuperBuilder
 @ToString
@@ -32,7 +34,8 @@ import java.util.Map;
 @NoArgsConstructor
 @Schema(
     title = "Create Airtable records (single or batch)",
-    description = "Creates one record from `fields` or multiple records from `records` (max " + MAX_RECORDS_PER_BATCH + " per call). Typecast is off by default; enable it to coerce string values. `fields` and `records` are mutually exclusive."
+    description = "Creates one record from `fields` or multiple records from `records` (max " + MAX_RECORDS_PER_BATCH
+        + " per call). Typecast is off by default; enable it to coerce string values. `fields` and `records` are mutually exclusive."
 )
 @Plugin(
     examples = {

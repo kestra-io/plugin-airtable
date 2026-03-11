@@ -1,10 +1,10 @@
 package io.kestra.plugin.airtable;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.List;
 
 /**
  * Response from Airtable list records API containing records and pagination info.

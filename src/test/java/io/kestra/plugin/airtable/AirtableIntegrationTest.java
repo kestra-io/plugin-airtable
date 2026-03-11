@@ -1,18 +1,19 @@
 package io.kestra.plugin.airtable;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.models.tasks.common.FetchType;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.utils.TestsUtils;
 import io.kestra.plugin.airtable.records.*;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -25,10 +26,10 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  *
  * To run these tests:
  * 1. Set environment variables:
- *    - AIRTABLE_INTEGRATION_TESTS=true
- *    - AIRTABLE_PERSONAL_ACCESS_TOKEN=your_token
- *    - AIRTABLE_BASE_ID=your_base_id
- *    - AIRTABLE_TABLE_ID=your_table_id (optional, defaults to "Table1")
+ * - AIRTABLE_INTEGRATION_TESTS=true
+ * - AIRTABLE_PERSONAL_ACCESS_TOKEN=your_token
+ * - AIRTABLE_BASE_ID=your_base_id
+ * - AIRTABLE_TABLE_ID=your_table_id (optional, defaults to "Table1")
  * 2. Run: ./gradlew test
  */
 @KestraTest
@@ -54,8 +55,7 @@ class AirtableIntegrationTest {
     }
 
     private String getTableId() {
-        return System.getenv("AIRTABLE_TABLE_ID") != null ?
-            System.getenv("AIRTABLE_TABLE_ID") : "Table1";
+        return System.getenv("AIRTABLE_TABLE_ID") != null ? System.getenv("AIRTABLE_TABLE_ID") : "Table1";
     }
 
     @Test
@@ -268,8 +268,10 @@ class AirtableIntegrationTest {
         // Verify all returned records are our test records
         for (Map<String, Object> record : output.getRows()) {
             Map<String, Object> fields = (Map<String, Object>) record.get("fields");
-            assertThat("All records should be test records",
-                fields.get("Name").toString(), containsString(TEST_PREFIX));
+            assertThat(
+                "All records should be test records",
+                fields.get("Name").toString(), containsString(TEST_PREFIX)
+            );
         }
 
         System.out.println("✅ Found " + output.getSize() + " test records using filter");
@@ -369,8 +371,10 @@ class AirtableIntegrationTest {
     @Order(10)
     @DisplayName("10. Clean Up Batch Records - Test Multiple Deletions")
     void shouldCleanUpBatchRecords() throws Exception {
-        assumeTrue(batchCreatedRecordIds != null && !batchCreatedRecordIds.isEmpty(),
-            "Batch created record IDs should be available");
+        assumeTrue(
+            batchCreatedRecordIds != null && !batchCreatedRecordIds.isEmpty(),
+            "Batch created record IDs should be available"
+        );
 
         for (String recordId : batchCreatedRecordIds) {
             Delete deleteTask = Delete.builder()

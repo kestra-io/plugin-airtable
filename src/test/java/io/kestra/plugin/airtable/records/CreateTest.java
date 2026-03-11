@@ -1,14 +1,15 @@
 package io.kestra.plugin.airtable.records;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.utils.TestsUtils;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -64,7 +65,8 @@ class CreateTest {
 
         // Task should fail due to invalid API key, but this proves it's properly built and runnable
         Exception exception = assertThrows(Exception.class, () -> task.run(runContext));
-        assertThat("Should fail with authentication or API error due to fake credentials",
+        assertThat(
+            "Should fail with authentication or API error due to fake credentials",
             exception.getMessage(), anyOf(
                 containsString("INVALID_AUTHORIZATION"),
                 containsString("NOT_FOUND"),
@@ -72,9 +74,8 @@ class CreateTest {
                 containsString("401"),
                 containsString("authentication"),
                 containsString("authorization")
-            ));
+            )
+        );
     }
-
-
 
 }

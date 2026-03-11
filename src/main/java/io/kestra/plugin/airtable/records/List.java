@@ -1,5 +1,13 @@
 package io.kestra.plugin.airtable.records;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -10,6 +18,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.airtable.AirtableClient;
 import io.kestra.plugin.airtable.AirtableListResponse;
 import io.kestra.plugin.airtable.AirtableRecord;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -18,13 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.slf4j.Logger;
-
-import java.io.ByteArrayInputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 @SuperBuilder
 @ToString
@@ -207,7 +209,7 @@ public class List extends Task implements RunnableTask<List.Output> {
     }
 
     private Output buildOutput(RunContext runContext, java.util.List<AirtableRecord> records,
-                             FetchType fetchType, int totalFetched) throws Exception {
+        FetchType fetchType, int totalFetched) throws Exception {
         Output.OutputBuilder outputBuilder = Output.builder().size((long) totalFetched);
 
         switch (fetchType) {

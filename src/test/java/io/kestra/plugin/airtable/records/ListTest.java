@@ -1,16 +1,17 @@
 package io.kestra.plugin.airtable.records;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.common.FetchType;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.utils.TestsUtils;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-import java.util.Map;
+import jakarta.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -69,7 +70,8 @@ class ListTest {
 
         // Task should fail due to invalid API key, but this proves it's properly built and runnable
         Exception exception = assertThrows(Exception.class, () -> task.run(runContext));
-        assertThat("Should fail with authentication or API error due to fake credentials",
+        assertThat(
+            "Should fail with authentication or API error due to fake credentials",
             exception.getMessage(), anyOf(
                 containsString("INVALID_AUTHORIZATION"),
                 containsString("NOT_FOUND"),
@@ -77,7 +79,8 @@ class ListTest {
                 containsString("401"),
                 containsString("authentication"),
                 containsString("authorization")
-            ));
+            )
+        );
     }
 
     @Test
@@ -88,8 +91,7 @@ class ListTest {
         // This test requires real Airtable credentials
         String apiKey = System.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN");
         String baseId = System.getenv("AIRTABLE_BASE_ID");
-        String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ?
-            System.getenv("AIRTABLE_TABLE_ID") : "Table1";
+        String tableId = System.getenv("AIRTABLE_TABLE_ID") != null ? System.getenv("AIRTABLE_TABLE_ID") : "Table1";
 
         List task = List.builder()
             .id("test-integration")

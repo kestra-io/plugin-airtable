@@ -1,10 +1,10 @@
 package io.kestra.plugin.airtable;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.Map;
 
 /**
  * Data model representing an Airtable record.
