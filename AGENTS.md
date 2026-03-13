@@ -2,7 +2,7 @@
 
 ## What
 
-description = 'Airtable plugin for Kestra Exposes 13 plugin components (tasks, triggers, and/or conditions).
+description = 'Airtable plugin for Kestra Exposes 5 plugin components (tasks, triggers, and/or conditions).
 
 ## Why
 
@@ -22,26 +22,18 @@ Infrastructure dependencies (Docker Compose services):
 
 ### Key Plugin Classes
 
-- `classname=Create`
-- `classname=Get`
-- `classname=List`
-- `classname=Update`
 - `io.kestra.plugin.airtable.records.Create`
 - `io.kestra.plugin.airtable.records.Delete`
 - `io.kestra.plugin.airtable.records.Get`
 - `io.kestra.plugin.airtable.records.List`
 - `io.kestra.plugin.airtable.records.Update`
-- `pkg=io.kestra.plugin.airtable.records`
-- `pkg=io.kestra.plugin.airtable.records`
-- `pkg=io.kestra.plugin.airtable.records`
-- `pkg=io.kestra.plugin.airtable.records`
 
 ### Project Structure
 
 ```
 plugin-airtable/
-├── src/main/java/project/group +/
-├── src/test/java/project/group +/
+├── src/main/java/io/kestra/plugin/airtable/records/
+├── src/test/java/io/kestra/plugin/airtable/records/
 ├── build.gradle
 └── README.md
 ```
