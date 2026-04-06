@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -81,6 +82,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         description = "The ID of the Airtable base (starts with 'app')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> baseId;
 
     @Schema(
@@ -88,6 +90,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         description = "The ID or name of the table within the base"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> tableId;
 
     @Schema(
@@ -95,6 +98,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         description = "The ID of the record to retrieve (starts with 'rec')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> recordId;
 
     @Schema(
@@ -102,6 +106,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> apiKey;
 
     @Schema(
@@ -114,6 +119,7 @@ public class Get extends Task implements RunnableTask<Get.Output> {
         title = "Fail on Missing Fields",
         description = "When true (default false), throws if any requested field is missing from the record."
     )
+    @PluginProperty(group = "reliability")
     private Property<Boolean> failOnMissing = Property.ofValue(false);
 
     @Override
