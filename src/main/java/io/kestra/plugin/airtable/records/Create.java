@@ -26,6 +26,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import static io.kestra.plugin.airtable.AirtableClient.MAX_RECORDS_PER_BATCH;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -123,6 +124,7 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         description = "The ID of the Airtable base (starts with 'app')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> baseId;
 
     @Schema(
@@ -130,6 +132,7 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         description = "The ID or name of the table within the base"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> tableId;
 
     @Schema(
@@ -137,18 +140,21 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> apiKey;
 
     @Schema(
         title = "Fields for single record",
         description = "Field values for creating a single record. Use this OR the `records` property, not both."
     )
+    @PluginProperty(group = "advanced")
     private Property<Map<String, Object>> fields;
 
     @Schema(
         title = "Multiple records",
         description = "List of records to create (max " + MAX_RECORDS_PER_BATCH + "). Each record is a map of field names to values. Use this OR the `fields` property, not both."
     )
+    @PluginProperty(group = "advanced")
     private Property<List<Map<String, Object>>> records;
 
     @Schema(
@@ -156,6 +162,7 @@ public class Create extends Task implements RunnableTask<Create.Output> {
         description = "Enable automatic data conversion from string values"
     )
     @Builder.Default
+    @PluginProperty(group = "advanced")
     private Property<Boolean> typecast = Property.ofValue(false);
 
     @Override

@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -102,6 +103,7 @@ public class List extends Task implements RunnableTask<List.Output> {
         description = "The ID of the Airtable base (starts with 'app')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> baseId;
 
     @Schema(
@@ -109,6 +111,7 @@ public class List extends Task implements RunnableTask<List.Output> {
         description = "The ID or name of the table within the base"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> tableId;
 
     @Schema(
@@ -116,12 +119,14 @@ public class List extends Task implements RunnableTask<List.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> apiKey;
 
     @Schema(
         title = "Filter by formula",
         description = "Airtable formula to filter records. Example: AND({Status} != 'Done', {Priority} = 'High')"
     )
+    @PluginProperty(group = "processing")
     private Property<String> filterByFormula;
 
     @Schema(
@@ -134,12 +139,14 @@ public class List extends Task implements RunnableTask<List.Output> {
         title = "Maximum records",
         description = "Maximum number of records to return per page (max 100)"
     )
+    @PluginProperty(group = "advanced")
     private Property<Integer> maxRecords;
 
     @Schema(
         title = "View",
         description = "Name or ID of a view to use. Records will be returned in the order of the view."
     )
+    @PluginProperty(group = "advanced")
     private Property<String> view;
 
     @Schema(
@@ -147,6 +154,7 @@ public class List extends Task implements RunnableTask<List.Output> {
         description = "Whether to automatically fetch all pages of results"
     )
     @Builder.Default
+    @PluginProperty(group = "destination")
     private Property<Boolean> enableAutoPagination = Property.ofValue(false);
 
     @Schema(
@@ -155,6 +163,7 @@ public class List extends Task implements RunnableTask<List.Output> {
     )
     @NotNull
     @Builder.Default
+    @PluginProperty(group = "processing")
     private Property<FetchType> fetchType = Property.ofValue(FetchType.FETCH);
 
     @Override

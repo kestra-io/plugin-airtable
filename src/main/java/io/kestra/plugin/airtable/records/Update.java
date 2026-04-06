@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import io.kestra.core.models.annotations.PluginProperty;
 
 @SuperBuilder
 @ToString
@@ -104,6 +105,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "The ID of the Airtable base (starts with 'app')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> baseId;
 
     @Schema(
@@ -111,6 +113,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "The ID or name of the table within the base"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> tableId;
 
     @Schema(
@@ -118,6 +121,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "The ID of the record to update (starts with 'rec')"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> recordId;
 
     @Schema(
@@ -125,6 +129,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<String> apiKey;
 
     @Schema(
@@ -132,6 +137,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "Map of field names to new values. Only these fields will be updated."
     )
     @NotNull
+    @PluginProperty(group = "main")
     private Property<Map<String, Object>> fields;
 
     @Schema(
@@ -139,6 +145,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "Enable automatic data conversion from string values"
     )
     @Builder.Default
+    @PluginProperty(group = "advanced")
     private Property<Boolean> typecast = Property.ofValue(false);
 
     @Override
