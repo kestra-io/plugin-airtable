@@ -119,7 +119,7 @@ public class List extends Task implements RunnableTask<List.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
-    @PluginProperty(group = "main")
+    @PluginProperty(group = "main", secret = true)
     private Property<String> apiKey;
 
     @Schema(
