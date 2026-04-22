@@ -137,7 +137,7 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
         description = "Airtable API key for authentication"
     )
     @NotNull
-    @PluginProperty(group = "main")
+    @PluginProperty(group = "main", secret = true)
     private Property<String> apiKey;
 
     @Override

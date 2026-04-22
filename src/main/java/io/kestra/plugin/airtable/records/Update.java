@@ -129,7 +129,7 @@ public class Update extends Task implements RunnableTask<Update.Output> {
         description = "Airtable API key for authentication"
     )
     @NotNull
-    @PluginProperty(group = "main")
+    @PluginProperty(group = "main", secret = true)
     private Property<String> apiKey;
 
     @Schema(
