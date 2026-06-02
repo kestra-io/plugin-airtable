@@ -16,7 +16,7 @@ inputs:
     description: "Airtable Base ID (starts with 'app')"
     defaults: "{{ secret('AIRTABLE_BASE_ID') }}"
   - id: cleanup
-    type: BOOLEAN
+    type: BOOL
     description: "Whether to delete created records at the end"
     defaults: true
 
