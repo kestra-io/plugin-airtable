@@ -119,7 +119,7 @@ tasks:
 
   # 9. Clean up batch created tasks
   - id: cleanup_batch_tasks
-    type: io.kestra.plugin.core.flow.ForEach
+    type: io.kestra.plugin.core.flow.Loop
     runIf: "{{ inputs.cleanup }}"
     values: "{{ outputs.create_multiple_tasks.recordIds }}"
     tasks:
@@ -127,7 +127,7 @@ tasks:
         type: io.kestra.plugin.airtable.records.Delete
         baseId: "{{ inputs.base_id }}"
         tableId: "Tasks"
-        recordId: "{{ taskrun.value }}"
+        recordId: "{{ item.value }}"
         apiKey: "{{ secret('AIRTABLE_PERSONAL_ACCESS_TOKEN') }}"
 
   # 10. Final summary
