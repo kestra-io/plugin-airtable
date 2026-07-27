@@ -36,7 +36,7 @@ import io.kestra.core.models.annotations.PluginProperty;
 @NoArgsConstructor
 @Schema(
     title = "List Airtable records with filters",
-    description = "Retrieves table records with optional formula filters, view ordering, field selection, and per-page caps (max 100). Auto-pagination is off by default; set enableAutoPagination to fetch all pages. Output follows fetchType: FETCH_ONE/FETCH return rows, STORE writes an Ion file to Kestra storage and returns its URI, NONE emits only the count."
+    description = "Retrieves table records with optional formula filters, view ordering, field selection, and per-page caps (max 100). Auto-pagination is off by default; set enableAutoPagination to fetch all pages. Output follows fetchType: FETCH_ONE/FETCH return rows, STORE writes an ION file to Kestra storage and returns its URI, NONE emits only the count."
 )
 @Plugin(
     examples = {

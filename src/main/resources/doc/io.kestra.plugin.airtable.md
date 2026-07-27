@@ -14,7 +14,7 @@ All tasks require `baseId` and `tableId` to identify the target table.
 
 `records.Create` creates one or more records — pass a single record via `fields` (a map of column name to value) or a batch via `records` (a list of field maps). Set `typecast: true` to let Airtable coerce string values to the appropriate field type.
 
-`records.Get` retrieves a single record by `recordId`. Scope returned columns with `fields`. Set `failOnMissing: true` to error if the record does not exist.
+`records.Get` retrieves a single record by `recordId`. Scope returned columns with `fields`. Set `failOnMissing: true` to error if any requested `fields` are absent from the record.
 
 `records.Update` updates a record by `recordId` — pass new values via `fields`.
 
