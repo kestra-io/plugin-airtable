@@ -134,8 +134,9 @@ class DeleteTest {
         RunContext deleteContext = runContextFactory.of();
         VoidOutput deleteOutput = deleteTask.run(deleteContext);
 
-        // Verify delete returns VoidOutput
-        assertThat(deleteOutput, is(notNullValue()));
+        // A task with no output must return null, never a VoidOutput instance
+        // (VoidOutput fails Jackson serialization on Kestra 2.0, hanging the execution in RUNNING)
+        assertThat(deleteOutput, is(nullValue()));
 
         // Verify the record no longer exists
         Get verifyDeleteTask = Get.builder()
@@ -244,7 +245,7 @@ class DeleteTest {
         VoidOutput deleteOutput = deleteTask.run(deleteContext);
 
         // Verify delete succeeded
-        assertThat(deleteOutput, is(notNullValue()));
+        assertThat(deleteOutput, is(nullValue()));
 
         // Verify the record is gone
         Get verifyDeleteTask = Get.builder()
@@ -312,7 +313,7 @@ class DeleteTest {
             RunContext deleteContext = runContextFactory.of();
             VoidOutput deleteOutput = deleteTask.run(deleteContext);
 
-            assertThat(deleteOutput, is(notNullValue()));
+            assertThat(deleteOutput, is(nullValue()));
         }
 
         // Verify all records are deleted

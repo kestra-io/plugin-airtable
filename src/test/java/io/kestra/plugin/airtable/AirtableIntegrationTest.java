@@ -349,7 +349,7 @@ class AirtableIntegrationTest {
         RunContext runContext = runContextFactory.of();
         VoidOutput output = deleteTask.run(runContext);
 
-        assertThat("Should delete record", output, is(notNullValue()));
+        assertThat("Should delete record and return null (no output)", output, is(nullValue()));
 
         // Verify deletion by trying to get the record (should fail)
         Get verifyTask = Get.builder()
@@ -389,7 +389,7 @@ class AirtableIntegrationTest {
             RunContext runContext = runContextFactory.of();
             VoidOutput output = deleteTask.run(runContext);
 
-            assertThat("Should delete batch record", output, is(notNullValue()));
+            assertThat("Should delete batch record and return null (no output)", output, is(nullValue()));
         }
 
         System.out.println("✅ Deleted " + batchCreatedRecordIds.size() + " batch records");

@@ -157,7 +157,7 @@ public class Delete extends Task implements RunnableTask<VoidOutput> {
 
         logger.info("Successfully deleted record: {}", deletedRecord.getId());
 
-        return new VoidOutput();
+        return null;
     }
 
 }
