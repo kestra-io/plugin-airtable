@@ -4,7 +4,7 @@ Read and write records in Airtable from Kestra flows.
 
 ## Authentication
 
-Set `apiKey` to your Airtable personal access token. Store it in a [secret](https://kestra.io/docs/concepts/secret) and apply it globally with [plugin defaults](https://kestra.io/docs/workflow-components/plugin-defaults).
+Set `apiKey` to your Airtable personal access token. Store it in a [secret](https://kestra.io/docs/concepts/secret) and set it on each task.
 
 ## Tasks
 
