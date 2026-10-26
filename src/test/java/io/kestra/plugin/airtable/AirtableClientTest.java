@@ -1,9 +1,14 @@
 package io.kestra.plugin.airtable;
 
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
+
+import com.sun.net.httpserver.HttpServer;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.runners.RunContext;
@@ -64,5 +69,34 @@ class AirtableClientTest {
         {
             client.createRecords("fake-base", "fake-table", tooManyRecords, false);
         });
+    }
+
+    @Test
+    void shouldEncodeSpacesInTableNameAndReportErrorBody() throws Exception {
+        var requestPath = new AtomicReference<String>();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", exchange ->
+        {
+            requestPath.set(exchange.getRequestURI().getRawPath());
+            var body = """
+                {"error":{"type":"INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND","message":"Invalid permissions, or the requested model was not found."}}"""
+                .getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(403, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.start();
+        try {
+            var baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/v0";
+            var client = new AirtableClient("fake-api-key", runContextFactory.of(), baseUrl);
+
+            var exception = assertThrows(AirtableException.class, () -> client.listRecords("appTEST", "Table 1", null, null, null, null, null));
+
+            assertThat(requestPath.get(), is("/v0/appTEST/Table%201"));
+            assertThat(exception.getMessage(), containsString("INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND"));
+        } finally {
+            server.stop(0);
+        }
     }
 }
