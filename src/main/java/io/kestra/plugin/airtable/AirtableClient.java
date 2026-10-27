@@ -28,21 +28,15 @@ import io.kestra.core.runners.RunContext;
 public class AirtableClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AirtableClient.class);
-    private static final String DEFAULT_BASE_URL = "https://api.airtable.com/v0";
+    private static final String BASE_URL = "https://api.airtable.com/v0";
     public static final int MAX_RECORDS_PER_BATCH = 10;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String apiKey;
-    private final String baseUrl;
 
     public AirtableClient(String apiKey, RunContext runContext) throws Exception {
-        this(apiKey, runContext, DEFAULT_BASE_URL);
-    }
-
-    AirtableClient(String apiKey, RunContext runContext, String baseUrl) throws Exception {
         this.apiKey = apiKey;
-        this.baseUrl = baseUrl;
         this.objectMapper = new ObjectMapper();
         this.httpClient = HttpClient.builder()
             .runContext(runContext)
@@ -55,7 +49,7 @@ public class AirtableClient {
     public AirtableListResponse listRecords(String baseId, String tableId, String filterByFormula,
         List<String> fields, Integer maxRecords, String view,
         String offset) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(baseUrl + "/" + baseId + "/" + encodeTableId(tableId));
+        StringBuilder urlBuilder = new StringBuilder(tableUrl(baseId, tableId));
         boolean hasParams = false;
 
         if (filterByFormula != null && !filterByFormula.trim().isEmpty()) {
@@ -105,7 +99,7 @@ public class AirtableClient {
      */
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
         throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(baseUrl + "/" + baseId + "/" + encodeTableId(tableId) + "/" + recordId);
+        StringBuilder urlBuilder = new StringBuilder(tableUrl(baseId, tableId) + "/" + recordId);
 
         HttpRequest request = HttpRequest.builder()
             .method("GET")
@@ -135,7 +129,7 @@ public class AirtableClient {
      */
     public AirtableRecord createRecord(String baseId, String tableId, Map<String, Object> fields, Boolean typecast)
         throws Exception {
-        String url = baseUrl + "/" + baseId + "/" + encodeTableId(tableId);
+        String url = tableUrl(baseId, tableId);
 
         Map<String, Object> requestBody = Map.of("fields", fields);
         if (typecast != null && typecast) {
@@ -172,7 +166,7 @@ public class AirtableClient {
             throw new IllegalArgumentException("Cannot create more than " + MAX_RECORDS_PER_BATCH + " records at once");
         }
 
-        String url = baseUrl + "/" + baseId + "/" + encodeTableId(tableId);
+        String url = tableUrl(baseId, tableId);
 
         List<Map<String, Object>> records = new ArrayList<>();
         for (Map<String, Object> fields : recordsFields) {
@@ -211,7 +205,7 @@ public class AirtableClient {
     public AirtableRecord updateRecord(String baseId, String tableId, String recordId,
         Map<String, Object> fields, Boolean typecast)
         throws Exception {
-        String url = baseUrl + "/" + baseId + "/" + encodeTableId(tableId) + "/" + recordId;
+        String url = tableUrl(baseId, tableId) + "/" + recordId;
 
         Map<String, Object> requestBody = Map.of("fields", fields);
         if (typecast != null && typecast) {
@@ -244,7 +238,7 @@ public class AirtableClient {
      */
     public AirtableRecord deleteRecord(String baseId, String tableId, String recordId)
         throws Exception {
-        String url = baseUrl + "/" + baseId + "/" + encodeTableId(tableId) + "/" + recordId;
+        String url = tableUrl(baseId, tableId) + "/" + recordId;
 
         HttpRequest request = HttpRequest.builder()
             .method("DELETE")
@@ -262,11 +256,15 @@ public class AirtableClient {
         }
     }
 
-    private static String encodeTableId(String tableId) {
+    static String tableUrl(String baseId, String tableId) {
+        return BASE_URL + "/" + baseId + "/" + encodeTableId(tableId);
+    }
+
+    static String encodeTableId(String tableId) {
         return URLEncoder.encode(tableId, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
-    private static AirtableException toAirtableException(String action, HttpClientResponseException e) {
+    static AirtableException toAirtableException(String action, HttpClientResponseException e) {
         var response = e.getResponse();
         if (response == null) {
             return new AirtableException("Failed to " + action + ": unknown - unknown");
@@ -278,7 +276,7 @@ public class AirtableClient {
     /**
      * Parse list response from Airtable API.
      */
-    private AirtableListResponse parseListResponse(String responseBody) throws JsonProcessingException {
+    AirtableListResponse parseListResponse(String responseBody) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         List<AirtableRecord> records = new ArrayList<>();

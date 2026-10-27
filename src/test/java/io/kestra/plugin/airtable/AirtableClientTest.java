@@ -1,15 +1,13 @@
 package io.kestra.plugin.airtable;
 
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
-import com.sun.net.httpserver.HttpServer;
-
+import io.kestra.core.http.HttpResponse;
+import io.kestra.core.http.client.HttpClientResponseException;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
@@ -72,31 +70,24 @@ class AirtableClientTest {
     }
 
     @Test
-    void shouldEncodeSpacesInTableNameAndReportErrorBody() throws Exception {
-        var requestPath = new AtomicReference<String>();
-        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", exchange ->
-        {
-            requestPath.set(exchange.getRequestURI().getRawPath());
-            var body = """
-                {"error":{"type":"INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND","message":"Invalid permissions, or the requested model was not found."}}"""
-                .getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(403, body.length);
-            exchange.getResponseBody().write(body);
-            exchange.close();
-        });
-        server.start();
-        try {
-            var baseUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/v0";
-            var client = new AirtableClient("fake-api-key", runContextFactory.of(), baseUrl);
+    void shouldEncodeSpaceInTableNameAsPercent20() {
+        assertThat(AirtableClient.encodeTableId("Table 1"), is("Table%201"));
+        assertThat(AirtableClient.encodeTableId("tblABC123"), is("tblABC123"));
+    }
 
-            var exception = assertThrows(AirtableException.class, () -> client.listRecords("appTEST", "Table 1", null, null, null, null, null));
+    @Test
+    void shouldPercentEncodeReservedCharactersInTableName() {
+        assertThat(AirtableClient.encodeTableId("a+b/c%d"), is("a%2Bb%2Fc%25d"));
+    }
 
-            assertThat(requestPath.get(), is("/v0/appTEST/Table%201"));
-            assertThat(exception.getMessage(), containsString("INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND"));
-        } finally {
-            server.stop(0);
-        }
+    @Test
+    void shouldDecodeErrorBodyBytesInException() {
+        var json = """
+            {"error":{"type":"INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND","message":"Invalid permissions, or the requested model was not found."}}""";
+        var response = HttpResponse.of(HttpResponse.Status.builder().code(403).build(), json.getBytes(StandardCharsets.UTF_8));
+
+        var exception = AirtableClient.toAirtableException("list records", new HttpClientResponseException("Forbidden", response));
+
+        assertThat(exception.getMessage(), is("Failed to list records: 403 - " + json));
     }
 }
