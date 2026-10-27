@@ -2,6 +2,7 @@ package io.kestra.plugin.airtable;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,5 +117,76 @@ class AirtableClientTest {
         assertThat(response.getRecords().getFirst().getId(), is("rec1"));
         assertThat(response.getRecords().getFirst().getFields(), hasEntry("Name", (Object) "First"));
         assertThat(response.getOffset(), is("itr1"));
+    }
+
+    @Test
+    void shouldFilterFieldsSafelyWhenFieldHasNullValue() throws Exception {
+        var runContext = runContextFactory.of();
+        var client = new AirtableClient("fake-api-key", runContext);
+
+        var fields = new HashMap<String, Object>();
+        fields.put("Task Name", "Test Task");
+        fields.put("Due Date", null);
+
+        var rec = new AirtableRecord("rec123", "2024-01-01T00:00:00.000Z", fields);
+        var filtered = client.filterRecordFields(rec, List.of("Task Name", "Due Date"));
+
+        assertThat(filtered.getFields(), is(notNullValue()));
+        assertThat(filtered.getFields().get("Task Name"), is("Test Task"));
+        assertThat(filtered.getFields().containsKey("Due Date"), is(true));
+        assertThat(filtered.getFields().get("Due Date"), is(nullValue()));
+    }
+
+    @Test
+    void shouldFilterFieldsSafelyWhenRecordHasNoFields() throws Exception {
+        var runContext = runContextFactory.of();
+        var client = new AirtableClient("fake-api-key", runContext);
+
+        var rec = new AirtableRecord("rec123", "2024-01-01T00:00:00.000Z", null);
+        var filtered = client.filterRecordFields(rec, List.of("Task Name", "Due Date"));
+
+        assertThat(filtered.getFields(), is(notNullValue()));
+        assertThat(filtered.getFields().isEmpty(), is(true));
+    }
+
+    @Test
+    void shouldParseRecordResponseWithNullAndEmptyFields() throws Exception {
+        var runContext = runContextFactory.of();
+        var client = new AirtableClient("fake-api-key", runContext);
+
+        var jsonWithNullField = """
+            {
+              "id": "rec123",
+              "createdTime": "2024-01-01T00:00:00.000Z",
+              "fields": {
+                "Task Name": "Test Task",
+                "Due Date": null
+              }
+            }
+            """;
+        var rec = client.parseRecordResponse(jsonWithNullField);
+        assertThat(rec.getId(), is("rec123"));
+        assertThat(rec.getFields().get("Task Name"), is("Test Task"));
+        assertThat(rec.getFields().containsKey("Due Date"), is(true));
+        assertThat(rec.getFields().get("Due Date"), is(nullValue()));
+
+        var filtered = client.filterRecordFields(rec, List.of("Task Name", "Due Date"));
+        assertThat(filtered.getFields().get("Task Name"), is("Test Task"));
+        assertThat(filtered.getFields().containsKey("Due Date"), is(true));
+        assertThat(filtered.getFields().get("Due Date"), is(nullValue()));
+
+        var jsonWithoutFields = """
+            {
+              "id": "rec456",
+              "createdTime": "2024-01-01T00:00:00.000Z"
+            }
+            """;
+        var recNoFields = client.parseRecordResponse(jsonWithoutFields);
+        assertThat(recNoFields.getId(), is("rec456"));
+        assertThat(recNoFields.getFields(), is(nullValue()));
+
+        var filteredNoFields = client.filterRecordFields(recNoFields, List.of("Task Name"));
+        assertThat(filteredNoFields.getFields(), is(notNullValue()));
+        assertThat(filteredNoFields.getFields().isEmpty(), is(true));
     }
 }

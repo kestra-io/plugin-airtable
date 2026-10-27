@@ -4,9 +4,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,29 +99,38 @@ public class AirtableClient {
      */
     public AirtableRecord getRecord(String baseId, String tableId, String recordId, List<String> fields)
         throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(tableUrl(baseId, tableId) + "/" + recordId);
+        var url = tableUrl(baseId, tableId) + "/" + recordId;
 
-        HttpRequest request = HttpRequest.builder()
+        var request = HttpRequest.builder()
             .method("GET")
-            .uri(URI.create(urlBuilder.toString()))
+            .uri(URI.create(url))
             .addHeader("Authorization", "Bearer " + apiKey)
             .build();
 
-        logger.debug("Making GET request to: {}", urlBuilder.toString());
+        logger.debug("Making GET request to: {}", url);
 
         try {
-            HttpResponse<String> response = httpClient.request(request, String.class);
-            AirtableRecord rec = parseRecordResponse(response.getBody());
-            if (fields != null && !fields.isEmpty()) {
-                Map<String, Object> filteredFields = rec.getFields().entrySet().stream()
-                    .filter(e -> fields.contains(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                return new AirtableRecord(rec.getId(), rec.getCreatedTime(), filteredFields);
-            }
-            return rec;
+            var response = httpClient.request(request, String.class);
+            var rec = parseRecordResponse(response.getBody());
+            return filterRecordFields(rec, fields);
         } catch (HttpClientResponseException e) {
             throw toAirtableException("get record", e);
         }
+    }
+
+    AirtableRecord filterRecordFields(AirtableRecord rec, List<String> fields) {
+        if (fields != null && !fields.isEmpty()) {
+            var filteredFields = new HashMap<String, Object>();
+            if (rec.getFields() != null) {
+                for (var field : fields) {
+                    if (rec.getFields().containsKey(field)) {
+                        filteredFields.put(field, rec.getFields().get(field));
+                    }
+                }
+            }
+            return new AirtableRecord(rec.getId(), rec.getCreatedTime(), filteredFields);
+        }
+        return rec;
     }
 
     /**
@@ -299,7 +308,7 @@ public class AirtableClient {
     /**
      * Parse single record response from Airtable API.
      */
-    private AirtableRecord parseRecordResponse(String responseBody) throws JsonProcessingException {
+    AirtableRecord parseRecordResponse(String responseBody) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         return parseRecord(jsonNode);
     }
