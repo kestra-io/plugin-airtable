@@ -1,12 +1,15 @@
 package io.kestra.plugin.airtable.records;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import reactor.core.publisher.Flux;
 
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -15,6 +18,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.tasks.common.FetchType;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.FileSerde;
 import io.kestra.plugin.airtable.AirtableClient;
 import io.kestra.plugin.airtable.AirtableListResponse;
 import io.kestra.plugin.airtable.AirtableRecord;
@@ -239,18 +243,7 @@ public class List extends Task implements RunnableTask<List.Output> {
                 break;
 
             case STORE:
-                // Store records as ION file
-                StringBuilder ionContent = new StringBuilder();
-                for (AirtableRecord record : records) {
-                    Map<String, Object> recordMap = convertRecordToMap(record);
-                    ionContent.append(recordMap.toString()).append("\n");
-                }
-
-                URI uri = runContext.storage().putFile(
-                    new ByteArrayInputStream(ionContent.toString().getBytes()),
-                    "airtable_records.ion"
-                );
-                outputBuilder.uri(uri);
+                outputBuilder.uri(storeRecords(runContext, records));
                 break;
 
             case NONE:
@@ -262,7 +255,16 @@ public class List extends Task implements RunnableTask<List.Output> {
         return outputBuilder.build();
     }
 
-    private Map<String, Object> convertRecordToMap(AirtableRecord record) {
+    // One ION record per line so IonToJson, IonToCsv and ForEachItem can read it.
+    static URI storeRecords(RunContext runContext, java.util.List<AirtableRecord> records) throws IOException {
+        var tempFile = runContext.workingDir().createTempFile(".ion").toFile();
+        try (var output = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()), FileSerde.BUFFER_SIZE)) {
+            FileSerde.writeAll(output, Flux.fromIterable(records).map(List::convertRecordToMap)).block();
+        }
+        return runContext.storage().putFile(tempFile, "airtable_records.ion");
+    }
+
+    private static Map<String, Object> convertRecordToMap(AirtableRecord record) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", record.getId());
         if (record.getCreatedTime() != null) {
